@@ -2,6 +2,9 @@
 
 # Test outputs (exclude ALL test results and sensitive data from public repo)
 **/outputs
+**/reports
+**.designspace
+**.rec
 
 # Python
 __pycache__/
