@@ -1,0 +1,27 @@
+FROM kalilinux/kali-rolling
+
+# Full Kali web + exploitation tooling + Node.js/npm (Kali ships Node 22+)
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    sudo curl git python3 python3-pip jq wget openssl chromium \
+    nodejs npm \
+    kali-tools-web kali-tools-exploitation \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Agent user with passwordless sudo
+RUN useradd -m -s /bin/bash agent && \
+    echo "agent ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/agent
+
+# Claude Code CLI
+RUN npm install -g @anthropic-ai/claude-code
+
+# Pre-configure Claude Code permissions for headless operation
+COPY claude-settings.json /home/agent/.claude/settings.json
+RUN chown -R agent:agent /home/agent/.claude
+
+WORKDIR /workspace
+USER agent
+
+# --dangerously-skip-permissions: no interactive tool approval prompts
+# Usage: docker run kali-agent -p "Your prompt here"
+# Or:    docker run kali-agent --model opus -p "Your prompt here"
+ENTRYPOINT ["claude", "--dangerously-skip-permissions"]

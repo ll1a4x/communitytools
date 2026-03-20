@@ -50,17 +50,17 @@ We built an autonomous pentesting agent that scores **100% (104/104)** on a publ
 
 This repository provides a complete **Claude Code security testing framework**:
 
-- 🎯 **7 Security Testing Skills** - Pentest, HackerOne, CVE testing, domain assessment, web app mapping
-- 🤖 **35+ Specialized Agents** - SQL injection, XSS, SSRF, JWT, OAuth, SSTI, XXE, and more
-- 🔧 **6 Orchestration Agents** - Multi-phase coordinators (Pentester, HackerOne Hunter, Git workflows)
-- 📝 **14 Slash Commands** - `/pentest`, `/hackerone`, `/commit`, `/pr`, `/issue`, `/branch`, `/skiller`
+- 🎯 **23 Security Testing Skills** - Pentest, HackerOne, HackTheBox, CVE testing, injection, server-side, client-side, API security, and more
+- 🤖 **30+ Specialized Executors** - SQL injection, XSS, SSRF, JWT, OAuth, SSTI, XXE, and more
+- 🔧 **9 Orchestration Agents** - Pentester (orchestrator/executor/validator/spear), HackerOne, HackTheBox, Slack notifier, Skiller, GitHub workflow
+- 📝 **23 Slash Commands** - `/pentest`, `/hackerone`, `/hackthebox`, `/injection`, `/server-side`, `/client-side`, `/skiller`, and more
 - 📚 **264+ Lab Walkthroughs** - PortSwigger Academy solutions with step-by-step guides
 - 📊 **Standardized Outputs** - Professional reports with CVSS scoring and evidence
 
 ### Why Choose Transilience Community Tools?
 
 - 🤖 **AI-Powered Automation** - Claude AI orchestrates intelligent security testing workflows
-- 🎯 **35+ Specialized Agents** - Parallel vulnerability testing across all OWASP categories
+- 🎯 **30+ Specialized Executors** - Parallel vulnerability testing across all OWASP categories
 - 🔍 **Complete OWASP Coverage** - 100% OWASP Top 10 + SANS Top 25 CWE testing
 - 📊 **Professional Reporting** - CVSS 3.1, CWE, MITRE ATT&CK, remediation guidance
 - 🔬 **Playwright Integration** - Browser automation for client-side vulnerability testing
@@ -86,24 +86,24 @@ graph TB
         B[Slash Commands<br/>/pentest /hackerone /commit]
     end
 
-    subgraph "Skills Layer .claude/skills/"
-        C1[Pentest Skill]
-        C2[HackerOne Skill]
-        C3[CVE Testing]
-        C4[Domain Assessment]
-        C5[Web App Mapping]
-        C6[Common AppSec]
-        C7[Authenticating]
+    subgraph "Skills Layer projects/pentest/.claude/skills/"
+        C1[Injection / Server-Side / Client-Side]
+        C2[API Security / Authentication]
+        C3[HackerOne / HackTheBox]
+        C4[CVE Testing / Reconnaissance]
+        C5[Cloud-Containers / Infrastructure]
+        C6[OSINT / Source Code Scanning]
+        C7[23 Skills Total]
     end
 
-    subgraph "Orchestration Agents .claude/agents/"
-        D1[Pentester Agent<br/>Multi-phase coordinator]
+    subgraph "Orchestration Agents projects/pentest/.claude/agents/"
+        D1[Pentester Orchestrator<br/>Multi-phase coordinator]
         D2[HackerOne Hunter<br/>Bug bounty workflow]
-        D3[Git Workflow Agents<br/>Issue/PR/Branch]
-        D4[Skiller Agent<br/>Skill creation]
+        D3[HackTheBox Agent<br/>Platform automation]
+        D4[Slack Notifier<br/>Notifications]
     end
 
-    subgraph "Specialized Agents .claude/agents/specialized/"
+    subgraph "Specialized Executors (30+ types)"
         E1[SQL Injection]
         E2[XSS Testing]
         E3[SSRF Detection]
@@ -111,7 +111,7 @@ graph TB
         E5[OAuth Testing]
         E6[SSTI Detection]
         E7[XXE Testing]
-        E8[35+ More Agents]
+        E8[25+ More Types]
     end
 
     subgraph "Tools & Automation"
@@ -144,42 +144,45 @@ graph TB
 
 ```
 communitytools/
-├── .claude/
-│   ├── skills/              # Security testing skills
-│   │   ├── pentest/         # 46+ attack types, 264+ lab walkthroughs
-│   │   ├── hackerone/       # Bug bounty hunting automation
-│   │   ├── cve-testing/     # CVE vulnerability testing
-│   │   ├── domain-assessment/     # Subdomain discovery, port scanning
-│   │   ├── web-application-mapping/ # Endpoint discovery, tech detection
-│   │   ├── common-appsec-patterns/ # OWASP Top 10 testing
-│   │   └── authenticating/  # Auth testing, 2FA bypass, bot evasion
-│   │
-│   ├── agents/              # Orchestration agents
-│   │   ├── pentester.md     # Multi-phase pentest coordinator
-│   │   ├── hackerone-hunter.md # Bug bounty workflow orchestrator
-│   │   ├── skiller.md       # Skill creation/management
-│   │   ├── git-*.md         # Git workflow automation
-│   │   └── specialized/     # 35+ vulnerability-specific agents
-│   │       ├── sql-injection-agent.md
-│   │       ├── xss-agent.md
-│   │       ├── ssrf-agent.md
-│   │       ├── jwt-agent.md
-│   │       └── ... (31 more)
-│   │
-│   ├── commands/            # Slash commands
-│   │   ├── pentest.md       # /pentest command
-│   │   ├── hackerone.md     # /hackerone command
-│   │   ├── commit.md        # /commit workflow
-│   │   └── ... (11 total)
-│   │
-│   └── output-standards/    # Standardized output formats
-│       ├── OUTPUT_STANDARDS.md
-│       └── reference/
+├── projects/pentest/
+│   └── .claude/
+│       ├── skills/                # 23 security testing skills
+│       │   ├── injection/         # SQL, NoSQL, Command, SSTI, XXE, LDAP
+│       │   ├── server-side/       # SSRF, HTTP Smuggling, Path Traversal, File Upload
+│       │   ├── client-side/       # XSS, CSRF, Clickjacking, CORS, Prototype Pollution
+│       │   ├── authentication/    # Auth bypass, JWT, OAuth, password attacks
+│       │   ├── api-security/      # GraphQL, REST, WebSocket, Web LLM
+│       │   ├── web-app-logic/     # Logic flaws, race conditions, access control
+│       │   ├── hackerone/         # Bug bounty hunting automation
+│       │   ├── hackthebox/        # HackTheBox platform automation
+│       │   ├── cve-testing/       # CVE vulnerability testing
+│       │   ├── reconnaissance/    # Subdomain discovery, port scanning
+│       │   ├── infrastructure/    # Network testing, DNS, SMB, VLAN
+│       │   ├── cloud-containers/  # AWS, Azure, GCP, Docker, K8s
+│       │   ├── osint/             # Open-source intelligence gathering
+│       │   ├── source-code-scanning/ # SAST, dependency CVEs, secrets
+│       │   ├── ai-threat-testing/ # LLM/AI security testing
+│       │   └── ... (8 more)
+│       │
+│       ├── agents/                # 9 orchestration agents
+│       │   ├── pentester-orchestrator.md  # Multi-phase coordinator
+│       │   ├── pentester-executor.md      # Vulnerability test executor
+│       │   ├── pentester-validator.md     # Finding validator
+│       │   ├── pentester-spear.md         # Deep exploitation (Hunt-Experiment-Learn)
+│       │   ├── hackerone.md               # Bug bounty workflow
+│       │   ├── hackthebox.md              # HackTheBox platform automation
+│       │   ├── slack-notifier.md          # Slack notifications (Block Kit)
+│       │   ├── skiller.md                 # Skill creation/management
+│       │   └── github-workflow.md         # Git workflow automation
+│       │
+│       └── OUTPUT_STANDARDS.md    # Standardized output formats
 │
-├── outputs/                 # Generated findings and reports
+├── docker/                 # Kali container images for isolated execution
+├── benchmarks/             # XBOW benchmark runner
+├── AGENTS.md               # Passive security knowledge base (always loaded)
 ├── CLAUDE.md               # Repository-wide instructions
 ├── CONTRIBUTING.md         # Contribution guidelines
-└── README.md              # This file
+└── README.md               # This file
 ```
 
 ### Multi-Agent Execution Flow
@@ -200,14 +203,14 @@ sequenceDiagram
     Agents->>Tools: Domain assessment, port scanning
     Tools-->>Output: inventory/*.json + analysis/*.md
 
-    Orch->>Agents: Phase 3-4: Deploy 35+ vuln agents in parallel
+    Orch->>Agents: Phase 3-4: Deploy 30+ vuln executors in parallel
     Agents->>Tools: SQL/XSS/SSRF/JWT/OAuth testing
     Tools-->>Output: findings/*.json + evidence/*.png
 
     Orch->>Output: Phase 5: Generate reports
     Output-->>User: Executive + technical reports
 
-    Note over Agents,Tools: Specialized agents:<br/>SQL, NoSQL, XSS, SSRF,<br/>JWT, OAuth, SSTI, XXE,<br/>+ 27 more types
+    Note over Agents,Tools: Specialized executors:<br/>SQL, NoSQL, XSS, SSRF,<br/>JWT, OAuth, SSTI, XXE,<br/>+ 24 more types
 ```
 
 ---
@@ -222,7 +225,7 @@ Execute comprehensive security assessments using the `/pentest` command:
 # In Claude Code
 /pentest
 
-# Deploys 35+ specialized agents to test for:
+# Deploys 30+ specialized executors to test for:
 # - Injection flaws (SQL, NoSQL, Command, SSTI, XXE)
 # - Authentication/authorization bypass
 # - Client-side attacks (XSS, CSRF, Clickjacking)
@@ -276,15 +279,16 @@ Comprehensive web app security testing:
 
 ```bash
 # Phase 1: Reconnaissance
-/domain-assessment     # Subdomain discovery, port scanning
-/web-application-mapping  # Endpoint discovery, tech detection
+/reconnaissance        # Subdomain discovery, port scanning, tech detection
 
-# Phase 2: Vulnerability Testing
-/common-appsec-patterns  # OWASP Top 10 testing
-/authenticating         # Authentication testing, 2FA bypass
+# Phase 2: Targeted Vulnerability Testing
+/injection             # SQL, NoSQL, Command, SSTI, XXE
+/server-side           # SSRF, path traversal, file upload
+/client-side           # XSS, CSRF, clickjacking
+/authentication        # Auth bypass, JWT, OAuth, 2FA
 
 # Phase 3: Full Pentest
-/pentest              # Complete security assessment
+/pentest              # Complete security assessment (all phases)
 ```
 
 **Output:** Multi-phase reports with attack surface inventory → vulnerability findings → remediation roadmap.
@@ -297,7 +301,7 @@ Comprehensive web app security testing:
 
 #### `/pentest` - Comprehensive Penetration Testing
 
-**46+ attack types, 264+ PortSwigger lab walkthroughs, 35+ specialized agents**
+**46+ attack types, 264+ PortSwigger lab walkthroughs, 30+ specialized executors**
 
 Orchestrates a complete 7-phase penetration test using specialized vulnerability agents:
 
@@ -311,7 +315,7 @@ Orchestrates a complete 7-phase penetration test using specialized vulnerability
 - **Web Apps:** IDOR, Host Header Injection, Information Disclosure
 
 **Features:**
-- 🤖 **35+ Specialized Agents** deployed in parallel
+- 🤖 **30+ Specialized Executors** deployed in parallel
 - 📚 **264+ Lab Walkthroughs** from PortSwigger Academy
 - 🎯 **OWASP Top 10** complete coverage
 - 🔬 **Playwright Automation** for browser-based testing
@@ -332,7 +336,7 @@ Orchestrates a complete 7-phase penetration test using specialized vulnerability
 
 ---
 
-#### `/domain-assessment` - Reconnaissance & Attack Surface Mapping
+#### `/reconnaissance` - Attack Surface Mapping
 
 - Subdomain discovery (multiple sources)
 - Port scanning and service detection
@@ -342,13 +346,28 @@ Orchestrates a complete 7-phase penetration test using specialized vulnerability
 
 ---
 
-#### `/web-application-mapping` - Web App Discovery
+#### `/injection` - Injection Vulnerability Testing
 
-- Passive browsing and spidering
-- Active endpoint discovery
-- Technology detection
-- Headless browser automation
-- Comprehensive application mapping
+- SQL, NoSQL, OS Command injection
+- SSTI, XXE, LDAP/XPath injection
+- Filter bypass techniques (keyword nesting, regex evasion)
+- Blind extraction workflows
+
+---
+
+#### `/server-side` - Server-Side Vulnerability Testing
+
+- SSRF, HTTP Request Smuggling, Path Traversal
+- File Upload, Insecure Deserialization, Host Header injection
+- PHP filter chains, double encoding, log poisoning
+
+---
+
+#### `/client-side` - Client-Side Vulnerability Testing
+
+- XSS (Reflected/Stored/DOM), CSRF, Clickjacking
+- CORS misconfiguration, Prototype Pollution
+- DOM-based attacks
 
 ---
 
@@ -362,24 +381,29 @@ Orchestrates a complete 7-phase penetration test using specialized vulnerability
 
 ---
 
-#### `/common-appsec-patterns` - OWASP Top 10 Testing
+#### `/authentication` - Authentication Security Testing
 
-Quick-hit testing for common web application vulnerabilities:
-- XSS, SQL injection, SSRF patterns
-- Authentication/authorization flaws
-- Security misconfigurations
-- Client-side security issues
+- Auth bypass, JWT attacks, OAuth flaws
+- Password attacks, 2FA/MFA bypass
+- CAPTCHA solving, bot detection evasion
+- Session management testing
 
 ---
 
-#### `/authenticating` - Authentication Security Testing
+#### `/hackthebox` - HackTheBox Platform Automation
 
-- Signup/login workflow testing
-- 2FA/MFA bypass techniques
-- CAPTCHA solving
-- Bot detection evasion
-- Behavioral biometrics simulation
-- OTP handling
+- Login via Playwright, browse challenges/machines
+- VPN management, Docker-based isolated execution
+- Automated challenge solving with pentest skills
+- Slack notifications via slack-notifier agent
+
+---
+
+#### `/api-security` - API Security Testing
+
+- GraphQL, REST API, WebSocket, Web LLM attacks
+- Schema introspection, mutation testing
+- Rate limiting and authorization bypass
 
 ---
 
@@ -484,21 +508,24 @@ Claude Code automatically discovers skills in `.claude/skills/` and commands in 
 **Reconnaissance:**
 
 ```bash
-/domain-assessment
+/reconnaissance
 # Discovers subdomains, ports, services, technologies
-
-/web-application-mapping
-# Maps endpoints, parameters, application structure
 ```
 
-**Quick Vulnerability Testing:**
+**Vulnerability Testing:**
 
 ```bash
-/common-appsec-patterns
-# Tests for OWASP Top 10 vulnerabilities
+/injection
+# Tests for SQL, NoSQL, Command, SSTI, XXE injection
 
-/authenticating
-# Tests authentication, 2FA, CAPTCHA, bot detection
+/server-side
+# Tests for SSRF, path traversal, file upload, deserialization
+
+/client-side
+# Tests for XSS, CSRF, clickjacking, CORS
+
+/authentication
+# Tests auth bypass, JWT, OAuth, 2FA, CAPTCHA
 ```
 
 **Development Workflow:**
@@ -527,7 +554,7 @@ claude-code /path/to/communitytools
 #    - Authentication credentials (if needed)
 
 # 4. The pentester agent will:
-#    - Deploy 35+ specialized vulnerability agents
+#    - Deploy 30+ specialized vulnerability executors
 #    - Test in parallel across all vulnerability categories
 #    - Generate findings in outputs/ directory
 #    - Create professional reports with evidence
@@ -547,14 +574,14 @@ claude-code /path/to/communitytools
 
 This repository implements a **three-layer architecture**:
 
-1. **Skills Layer** (`.claude/skills/`) - User-facing workflows invoked via slash commands
-2. **Agents Layer** (`.claude/agents/`) - Orchestrators and specialized testing agents
+1. **Skills Layer** (`projects/pentest/.claude/skills/`) - 23 user-facing workflows invoked via slash commands
+2. **Agents Layer** (`projects/pentest/.claude/agents/`) - 9 orchestration agents + 30+ executor specializations
 3. **Tools Layer** - Playwright MCP, HTTP clients, evidence capture
 
 ```mermaid
 flowchart TB
     subgraph "1️⃣ User Invokes Skill"
-        A["/pentest<br/>/hackerone<br/>/domain-assessment"]
+        A["/pentest<br/>/hackerone<br/>/reconnaissance"]
     end
 
     subgraph "2️⃣ Skill Loads Context"
@@ -569,12 +596,12 @@ flowchart TB
         C3[Domain Assessor]
     end
 
-    subgraph "4️⃣ Spawn Specialized Agents in Parallel"
-        D1[SQL Injection Agent]
-        D2[XSS Agent]
-        D3[SSRF Agent]
-        D4[JWT Agent]
-        D5[35+ More Agents]
+    subgraph "4️⃣ Spawn Specialized Executors in Parallel"
+        D1[SQL Injection]
+        D2[XSS Testing]
+        D3[SSRF Detection]
+        D4[JWT Attack]
+        D5[30+ More Types]
     end
 
     subgraph "5️⃣ Execute Tests with Tools"
@@ -605,24 +632,24 @@ flowchart TB
 **User:** `/pentest` (in Claude Code)
 
 **Step 1: Skill Loads**
-- Reads `.claude/skills/pentest/skill.md` for methodology
-- Loads `.claude/skills/pentest/CLAUDE.md` for context
+- Loads the relevant skill (e.g., `injection/`, `server-side/`, `client-side/`) with methodology and reference docs
+- AGENTS.md provides passive security knowledge (payloads, scoring, methodologies)
 - Identifies 46+ attack types and 264+ lab walkthroughs
 
-**Step 2: Pentester Agent Deploys**
-- Reads `.claude/agents/pentester.md` for orchestration logic
+**Step 2: Pentester Orchestrator Deploys**
+- Reads `pentester-orchestrator.md` for orchestration logic
 - Implements 7-phase PTES methodology
-- Coordinates parallel agent deployment
+- Coordinates parallel executor deployment
 
-**Step 3: Specialized Agents Execute**
+**Step 3: Specialized Executors Run**
 ```
-Pentester Agent spawns in parallel:
-├─ SQL Injection Agent (.claude/agents/specialized/sql-injection-agent.md)
-├─ XSS Agent (.claude/agents/specialized/xss-agent.md)
-├─ SSRF Agent (.claude/agents/specialized/ssrf-agent.md)
-├─ JWT Agent (.claude/agents/specialized/jwt-agent.md)
-├─ OAuth Agent (.claude/agents/specialized/oauth-agent.md)
-└─ 30+ more agents...
+Pentester Orchestrator spawns executors in parallel:
+├─ Injection executors (SQL, NoSQL, Command, SSTI, XXE, LDAP)
+├─ Client-side executors (XSS, CSRF, Clickjacking, CORS, Prototype Pollution, DOM)
+├─ Server-side executors (SSRF, HTTP Smuggling, Path Traversal, File Upload, Deserialization)
+├─ Auth executors (Bypass, JWT, OAuth, Password Attacks)
+├─ API executors (GraphQL, REST, WebSocket, Web LLM)
+└─ Business logic executors (Logic Flaws, Race Conditions, Access Control, Cache Poisoning)
 ```
 
 **Step 4: Tools Execute Tests**
@@ -650,7 +677,7 @@ outputs/pentest/<target>/
 
 ### Standardized Output Formats
 
-All skills follow **OUTPUT_STANDARDS.md** (`.claude/output-standards/`):
+All skills follow **OUTPUT_STANDARDS.md** (`projects/pentest/.claude/OUTPUT_STANDARDS.md`):
 
 | Output Type | Directory Structure | Use Case |
 |-------------|---------------------|----------|
@@ -855,10 +882,9 @@ We believe in giving back to the security community by open-sourcing our tools a
 
 | Category | Count | Description |
 |----------|-------|-------------|
-| 🎯 **Security Skills** | 7 | Main security testing workflows |
-| 🤖 **Specialized Agents** | 35+ | Vulnerability-specific testing agents |
-| 🔧 **Orchestration Agents** | 6 | Workflow coordinators (pentest, hackerone, git) |
-| 📝 **Slash Commands** | 14 | User-invocable commands |
+| 🎯 **Security Skills** | 23 | User-invocable testing workflows (also slash commands) |
+| 🤖 **Specialized Executors** | 30+ | Vulnerability-specific testing executor types |
+| 🔧 **Orchestration Agents** | 9 | Pentester (4), HackerOne, HackTheBox, Slack, Skiller, GitHub |
 | 📚 **Lab Walkthroughs** | 264+ | PortSwigger Academy solutions |
 | 🎓 **Attack Types** | 46+ | Documented exploitation techniques |
 | 📊 **Output Standards** | 3 | Standardized formats (recon, vuln, bounty) |
