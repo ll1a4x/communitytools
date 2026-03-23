@@ -1,5 +1,0 @@
-# Keep build context small — only claude-settings.json is COPYed
-agent_runner.py
-docker-compose.agents.yml
-*.pyc
-__pycache__
