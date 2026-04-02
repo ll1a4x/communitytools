@@ -39,7 +39,7 @@ Identify:
 
 ### Step 4: Update Skills
 
-Use `/skiller` or direct edits. Target files based on technique type:
+Use `/skill-update` or direct edits. Target files based on technique type:
 
 | Technique Type | Target Skill | Target File |
 |---------------|-------------|-------------|

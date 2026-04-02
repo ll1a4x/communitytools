@@ -1,4 +1,9 @@
-# Evidence Formatter Skill
+---
+name: evidence_formatter
+description: Formats evidence entries with proper sources, reasoning, and citations to create comprehensive, verifiable documentation for all technology identifications.
+---
+
+# Evidence Formatter
 
 ## Overview
 Formats evidence entries with proper sources, reasoning, and citations to create comprehensive, verifiable documentation for all technology identifications.

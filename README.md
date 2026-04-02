@@ -126,7 +126,7 @@ Agent roles (orchestrator, executor, validator, script-generator, patt-fetcher) 
 | `/essential-tools` | Burp Suite, Playwright automation, methodology, reporting standards |
 | `/transilience-report-style` | Transilience-branded PDF report generation (ReportLab) |
 | `/github-workflow` | Git branching, commits, PRs, issues, code review |
-| `/skiller` | Skill scaffolding, validation, GitHub workflow automation |
+| `/skill-update` | Skill scaffolding, validation, GitHub workflow automation |
 
 ### Tool Integrations (2)
 
@@ -253,9 +253,9 @@ We welcome contributions from the security community!
 
 **Read the full guide:** [CONTRIBUTING.md](CONTRIBUTING.md)
 
-**Quick path using the Skiller:**
+**Quick path using Skill Update:**
 ```bash
-/skiller
+/skill-update
 # Select: CREATE → provide details → automated GitHub workflow
 # Handles: issue creation, branch, skill generation, validation, commit, PR
 ```

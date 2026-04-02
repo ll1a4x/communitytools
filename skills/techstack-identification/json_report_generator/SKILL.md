@@ -1,4 +1,9 @@
-# JSON Report Generator Skill
+---
+name: json_report_generator
+description: Generates structured TechStackReport JSON output conforming to the defined schema, integrating all data from previous phases into a complete, valid report document.
+---
+
+# JSON Report Generator
 
 ## Overview
 Generates structured TechStackReport JSON output conforming to the defined schema, integrating all data from previous phases into a complete, valid report document.

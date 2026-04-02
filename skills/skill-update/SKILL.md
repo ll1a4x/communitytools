@@ -1,4 +1,10 @@
-# Skiller
+---
+name: skill-update
+description: Skill creation and management — generates skill directory structure, validates against best practices, enforces line count limits. Use when creating, updating, or improving skills.
+model: opus
+---
+
+# Skill Update
 
 Generate Claude Code skills following Anthropic best practices.
 

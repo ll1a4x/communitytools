@@ -1,4 +1,9 @@
-# Conflict Resolver Skill
+---
+name: conflict_resolver
+description: Resolves contradictory signals detected during correlation using context-aware logic, temporal analysis, and domain expertise rules.
+---
+
+# Conflict Resolver
 
 ## Overview
 Resolves contradictory signals detected during correlation using context-aware logic, temporal analysis, and domain expertise rules.

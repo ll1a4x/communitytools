@@ -45,6 +45,7 @@ description.md, poc.py, poc_output.txt, workflow.md, evidence/{request,response,
 
 ## Rules
 
+- **Open your own browser tab immediately — never share tabs with other executors**
 - 3+ escalation levels before reporting failure
 - Report negative results with detail (helps orchestrator adapt)
 - Report unexpected findings outside your assigned class

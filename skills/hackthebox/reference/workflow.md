@@ -3,7 +3,7 @@
 ## 1. Read credentials
 
 ```bash
-python3 tools/env-reader.py HTB_USER HTB_PASS ANTHROPIC_API_KEY SLACK_BOT_TOKEN HTB_SLACK_CHANNEL_ID
+python3 projects/pentest/.claude/tools/env-reader.py HTB_USER HTB_PASS ANTHROPIC_API_KEY SLACK_BOT_TOKEN HTB_SLACK_CHANNEL_ID
 ```
 Use `HTB_USER`/`HTB_PASS` from `ENV_VALUES`. Only `AskUserQuestion` if `NOT_SET`.
 Slack is enabled when BOTH `SLACK_BOT_TOKEN` and `HTB_SLACK_CHANNEL_ID` are set.
@@ -59,7 +59,7 @@ date -u +%Y-%m-%dT%H:%M:%SZ > YYMMDD_<name>/logs/start_time.txt
 ```bash
 printf ':crossed_swords: *Starting HTB: %s*\n*Difficulty:* %s | *OS:* %s | *Target:* `%s`\n_Started at %s_' \
   "{name}" "{difficulty}" "{os}" "{ip}" "$(date -u '+%Y-%m-%d %H:%M UTC')" \
-  | python3 tools/slack-send.py --token "{SLACK_BOT_TOKEN}" --channel "{HTB_SLACK_CHANNEL_ID}" -
+  | python3 projects/pentest/.claude/tools/slack-send.py --token "{SLACK_BOT_TOKEN}" --channel "{HTB_SLACK_CHANNEL_ID}" -
 ```
 If tool exits non-zero, log error but continue.
 
@@ -67,15 +67,17 @@ If tool exits non-zero, log error but continue.
 
 See the "Orchestrator (Step 8)" section in the main SKILL.md.
 
+**Multi-agent isolation**: When spawning multiple executors, each agent opens its own browser tab immediately — never share or reuse tabs.
+
 ## 9. Submit flags
 
 1. Extract flags from orchestrator output → submit via Playwright on Tab 0
 2. Save to `YYMMDD_<name>/flag.txt`
 3. Write structured findings in `YYMMDD_<name>/findings/finding-NNN/`
 
-## 10. Run skiller (MANDATORY, foreground)
+## 10. Run skill-update (MANDATORY, foreground)
 
-Run `/skiller` to process all activities — successful techniques, failed attempts, key discoveries. Evaluate skill/reference updates. Constraints: generalizable only, no target-specific data, minimal footprint. Save output for report + Slack.
+Run `/skill-update` to process all activities — successful techniques, failed attempts, key discoveries. Evaluate skill/reference updates. Constraints: generalizable only, no target-specific data, minimal footprint. Save output for report + Slack.
 
 ## 11. Collect stats and write completion report
 
@@ -85,6 +87,6 @@ Read `stats.json` + `start_time.txt`, compute duration. If `stats.json` missing,
 
 Build from completion report. ALL sections required — do not send partial. Include a narrative "How it was hacked" (connected story, 3-6 sentences, not just bullets).
 
-Format: `:trophy: PWNED — {name}` | difficulty/OS/time | flag status (:white_check_mark:/:x:) | Stats (experiments/findings/agents) | How it was hacked (narrative) | Key Techniques (bullets) | Skills Updated (skiller summary)
+Format: `:trophy: PWNED — {name}` | difficulty/OS/time | flag status (:white_check_mark:/:x:) | Stats (experiments/findings/agents) | How it was hacked (narrative) | Key Techniques (bullets) | Skills Updated (skill-update summary)
 
-Send via `tools/slack-send.py`. If tool fails, log error but continue.
+Send via `projects/pentest/.claude/tools/slack-send.py`. If tool fails, log error but continue.

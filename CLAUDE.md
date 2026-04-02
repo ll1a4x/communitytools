@@ -7,7 +7,7 @@ This repo provides Claude Code skills for security testing, bug bounty hunting, 
 - Be wary of committing secrets, credentials or .env files
 - Move or save any file into the appropriate folder for the job. create one if necessary.
 - Solutions requires investigation, research, creativity, keep that in mind
-- Always use /skiller to perform skill improvements and learning patterns
+- Always use /skill-update to perform skill improvements and learning patterns
 - All skills follow standardized output formats. See `skills/coordination/reference/OUTPUT_STRUCTURE.md` for complete specification.
 - Before executing a task, ensure to mount the right set of skills adapt for the task
 
@@ -42,7 +42,7 @@ YYMMDD_hhmmss_<target-or-engagement>/
 **MANDATORY**: Before using `AskUserQuestion` to ask the user for credentials, API keys, tokens, or any configuration value, ALWAYS read from `.env` first:
 
 ```bash
-python3 .claude/tools/env-reader.py VAR1 VAR2 VAR3
+python3 tools/env-reader.py VAR1 VAR2 VAR3
 ```
 
 Only ask the user if `env-reader.py` returns `NOT_SET` for the needed variable. This applies to ALL agents.

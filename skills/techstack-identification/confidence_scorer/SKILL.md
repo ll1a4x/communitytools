@@ -1,4 +1,9 @@
-# Confidence Scorer Skill
+---
+name: confidence_scorer
+description: Calculates confidence levels for identified technologies based on signal quantity, quality, source diversity, and corroboration patterns.
+---
+
+# Confidence Scorer
 
 ## Overview
 Calculates confidence levels for identified technologies based on signal quantity, quality, source diversity, and corroboration patterns.

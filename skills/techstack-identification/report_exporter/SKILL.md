@@ -1,4 +1,9 @@
-# Report Exporter Skill
+---
+name: report_exporter
+description: Exports TechStackReport from JSON format to alternative formats including Markdown, HTML, and PDF for different consumption needs and audiences.
+---
+
+# Report Exporter
 
 ## Overview
 Exports TechStackReport from JSON format to alternative formats including Markdown, HTML, and PDF for different consumption needs and audiences.

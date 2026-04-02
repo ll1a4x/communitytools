@@ -1,4 +1,9 @@
-# Signal Correlator Skill
+---
+name: signal_correlator
+description: Cross-validates signals from multiple sources for consistency, identifying corroborating evidence and detecting contradictions across data collection domains.
+---
+
+# Signal Correlator
 
 ## Overview
 Cross-validates signals from multiple sources for consistency, identifying corroborating evidence and detecting contradictions across data collection domains.
