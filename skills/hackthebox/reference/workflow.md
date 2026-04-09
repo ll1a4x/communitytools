@@ -74,14 +74,31 @@ date -u +%Y-%m-%dT%H:%M:%SZ > YYMMDD_<name>/logs/start_time.txt
 - Analyze TARGET, plan exploitation
 - Spawn executor agents (each in separate browser tab) as needed
 - Extract flags, submit to HTB platform
-- Generate completion report
-- Run skill-update
-- Send Slack notification
+- Generate completion report → `{OUTPUT_DIR}/reports/completion-report.md`
+- Write stats → `{OUTPUT_DIR}/stats.json`
 - Terminate when challenge is complete
 
 Each agent writes to its own `OUTPUT_DIR` (unique per challenge).
 
 **Reference**: See [coordinator-spawn.md](coordinator-spawn.md) for coordinator spawn prompt template.
+
+## 8. Post-Solve Loop (parent orchestrator)
+
+**The parent orchestrator handles skill-update and Slack for every completed coordinator.** This guarantees these steps always run, even if a coordinator runs out of context or errors out.
+
+**Hook enforcement** (active in `projects/ctf/`): When a coordinator named `htb-coordinator-*` completes, a `SubagentStop` hook injects a mandatory `/skill-update` reminder into the parent context. `slack-send.py` is **blocked** by a `PreToolUse` hook until `/skill-update` runs and creates `.skill-update-done` in the output dir. See `.claude/hooks/htb-skill-update-gate.sh`.
+
+After each coordinator completes:
+
+1. **Read outputs** — `{OUTPUT_DIR}/reports/completion-report.md` + `{OUTPUT_DIR}/stats.json`
+2. **Run `/skill-update`** — pass techniques, lessons learned, and failed approaches from the completion report. Only generalizable patterns, no target-specific data.
+3. **Send Slack notification** (if `SLACK_BOT_TOKEN` + `HTB_SLACK_CHANNEL_ID` are set):
+   - Compose message per [slack-notifications.md](slack-notifications.md) using completion report + stats + skill-update output
+   - Send via `python3 tools/slack-send.py --token "{SLACK_BOT_TOKEN}" --channel "{HTB_SLACK_CHANNEL_ID}" -`
+4. **Log completion** to parent console
+5. **Spawn next** challenge from queue (if any remain)
+
+If the completion report is missing (coordinator crashed), log a warning and skip skill-update/Slack for that challenge. Do not block the queue.
 
 ## Flag Progression (Multi-Flag Machines)
 

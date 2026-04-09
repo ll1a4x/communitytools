@@ -10,7 +10,7 @@ Slack messages notify the team when a challenge starts or when it's solved. Both
 ```bash
 printf ':crossed_swords: *Starting HTB: %s*\n*Difficulty:* %s | *OS:* %s | *Target:* `%s`\n_Started at %s_' \
   "{name}" "{difficulty}" "{os}" "{ip}" "$(date -u '+%Y-%m-%d %H:%M UTC')" \
-  | python3 projects/pentest/.claude/tools/slack-send.py --token "{SLACK_BOT_TOKEN}" --channel "{HTB_SLACK_CHANNEL_ID}" -
+  | python3 tools/slack-send.py --token "{SLACK_BOT_TOKEN}" --channel "{HTB_SLACK_CHANNEL_ID}" -
 ```
 
 **Example Output**:
@@ -84,7 +84,7 @@ Skills Updated:
 ### Slack Message Sending
 ```bash
 # Send to Slack
-python3 projects/pentest/.claude/tools/slack-send.py \
+python3 tools/slack-send.py \
   --token "{SLACK_BOT_TOKEN}" \
   --channel "{HTB_SLACK_CHANNEL_ID}" \
   "{message_text}"
@@ -96,9 +96,10 @@ python3 projects/pentest/.claude/tools/slack-send.py \
 - If either is `NOT_SET`, skip Slack notifications silently
 
 ### Completion Report Source
-- Build notifications from `reports/completion-report.md`
-- Extract stats from `stats.json`
-- Get skill updates from `/skill-update` output
+The **parent orchestrator** (HTB workflow step 8) sends these notifications after each coordinator completes — not the coordinator itself.
+- Build notifications from `{OUTPUT_DIR}/reports/completion-report.md`
+- Extract stats from `{OUTPUT_DIR}/stats.json`
+- Get skill updates from `/skill-update` output (run by parent after reading completion report)
 
 ### Narrative Guidelines
 - Write as **connected story**, not disconnected steps

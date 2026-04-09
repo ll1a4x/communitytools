@@ -2,6 +2,17 @@
 
 One coordinator per challenge. Queue-based pool, max N concurrent. Replace `{vars}` with values.
 
+**Naming convention** (required for hook enforcement):
+```python
+Agent(
+    name=f"htb-coordinator-{challenge_name}",
+    description=f"HTB coordinator: {challenge_name}",
+    prompt=PROMPT,
+    run_in_background=True
+)
+```
+The `htb-coordinator` prefix is matched by the SubagentStop hook in `projects/ctf/.claude/settings.local.json` to enforce `/skill-update` after each solve.
+
 ---
 
 ```
@@ -9,7 +20,6 @@ Coordinator for HTB challenge {TARGET}. Find vulns, extract flags, submit, docum
 
 ## ENV
 HTB_USER={HTB_USER} HTB_PASS={HTB_PASS}
-SLACK_BOT_TOKEN={SLACK_BOT_TOKEN} HTB_SLACK_CHANNEL_ID={HTB_SLACK_CHANNEL_ID}
 
 ## TARGET
 {TARGET}
@@ -49,15 +59,11 @@ Files: attack-chain.md flags.txt stats.json
 ### Phase 1: Exploit
 1. Recon → read source code → write attack-chain.md → depth-first cycle per skills/coordination/SKILL.md
 
-### Phase 2: Submit
+### Phase 2: Submit & Finalize
 2. Submit flags via Playwright → flags.txt
 3. Completion report → reports/completion-report.md (formats/htb-completion-report.md)
-4. /skill-update
-5. Slack notification (if tokens set)
-
-### Phase 3: Finalize
-6. stats.json: experiment_count, finding_count, agent_count, duration_seconds, submitted_flags, skills_updated
-7. Return stats + flags.
+4. stats.json: experiment_count, finding_count, agent_count, duration_seconds, submitted_flags
+5. Return stats + flags.
 
 Begin.
 ```
@@ -70,8 +76,6 @@ Begin.
 |-----|---------|
 | `{HTB_USER}` | `user@email.com` |
 | `{HTB_PASS}` | `pass123` |
-| `{SLACK_BOT_TOKEN}` | `xoxb-...` (optional) |
-| `{HTB_SLACK_CHANNEL_ID}` | `C01234ABCD` (optional) |
 | `{TARGET}` | `10.10.11.42` |
 | `{SCOPE_DESCRIPTION}` | `Web challenge, XXE` |
 | `{OUTPUT_DIR}` | `260402_Fries/` |

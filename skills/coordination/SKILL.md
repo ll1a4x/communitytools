@@ -15,13 +15,14 @@ P0: Ingest scope
 P1: Recon + read source code → write attack-chain.md
  ↓
 ┌→ P2: Think — read chain, write next step + reasoning, design 1-2 experiments
-│  P3: Execute — spawn 1-2 executors with CHAIN_CONTEXT
+│  P2b: Research (conditional) — see reference/creative-research.md
+│  P3: Execute — spawn 1-2 executors with CHAIN_CONTEXT [+ RESEARCH_BRIEF]
 │  P4: Integrate — read results, update chain, revise theory
 │      No progress 2 batches → P4b
 │      Goal → P5
 └─ loop (max 30 experiments)
 
-P4b: Reset — re-read all recon + source + chain. Challenge assumptions. Fresh theory.
+P4b: Reset — re-read all recon + source + chain. Creative Research (MANDATORY). Fresh theory.
 P5: Validate + Report
 ```
 
@@ -39,6 +40,18 @@ At `{OUTPUT_DIR}/attack-chain.md`. Updated every batch. Sections: services, surf
 
 Keep it terse — bullet points, no prose.
 
+## Creative Research (P2b)
+
+Triggers — research when ANY of:
+- P4b reset (mandatory)
+- 3-strike stuck detection fires (rule 12)
+- New tech/framework discovered not in mounted skills
+- No clear hypothesis at P2
+
+Method: follow `reference/creative-research.md`. Synthesize model knowledge + online sources + skill cross-reference into a RESEARCH_BRIEF (max 10 lines) appended to executor prompt.
+
+Do NOT research every batch. Most batches skip P2b entirely.
+
 ## Spawning
 
 Consult `reference/context-injection.md` before building any agent prompt.
@@ -47,9 +60,13 @@ Consult `reference/context-injection.md` before building any agent prompt.
 executor = Read("skills/coordination/reference/executor-role.md")
 chain = Read(f"{output_dir}/attack-chain.md")
 
+# Optional: if P2b produced a brief
+# research = "RESEARCH_BRIEF:\n- [model] ...\n- [web] ...\n- [skills] ..."
+
 # 1-2 executors per batch — pass only relevant PATT_URL, not full map
 Agent(prompt=f"{executor}\nMISSION_ID: m-001\nCHAIN_CONTEXT: {chain}\n"
-      f"OBJECTIVE: ...\nSKILL_FILES: ...\nPATT_URL: ...\nOUTPUT_DIR: {output_dir}",
+      f"OBJECTIVE: ...\nSKILL_FILES: ...\nPATT_URL: ...\nOUTPUT_DIR: {output_dir}\n"
+      f"{research if research else ''}",
       description="Blind SQLi /search", run_in_background=True)
 
 # Wait. Read results. Think. Update attack-chain.md. THEN next batch.
@@ -94,6 +111,7 @@ See `reference/context-injection.md` for what each role receives and what is wit
 12. 3-strike stuck detection. If the same technique fails 3 times with different errors, STOP. Write to attack-chain.md: (a) why it's failing, (b) is this path fundamentally blocked (check ACLs, PRP, group membership), (c) alternative paths. Do NOT continue retrying.
 13. Read before calling library internals. Before writing Python against any library's internal API (Impacket, ldap3, pyasn1), read the relevant source file first. Never guess function signatures. Prefer CLI tools (secretsdump.py, ticketer.py, getST.py) over raw API calls.
 14. Background command discipline. Before spawning a background command, state what specific result it will produce. No speculative tunnels, relays, or listeners without a concrete plan to use them.
+15. Creative Research triggers: P4b (mandatory), 3-strike stuck, new tech discovered, no hypothesis. Follow `reference/creative-research.md`. Max 3 WebSearch + 2 WebFetch per cycle.
 
 ## Token Discipline
 
@@ -106,4 +124,4 @@ See `reference/context-injection.md` for what each role receives and what is wit
 
 ## References
 
-`reference/ATTACK_INDEX.md` · `reference/OUTPUT_STRUCTURE.md` · `reference/VALIDATION.md` · `reference/GIT_CONVENTIONS.md` · `reference/context-injection.md` · `formats/INDEX.md`
+`reference/ATTACK_INDEX.md` · `reference/OUTPUT_STRUCTURE.md` · `reference/VALIDATION.md` · `reference/GIT_CONVENTIONS.md` · `reference/context-injection.md` · `reference/creative-research.md` · `formats/INDEX.md`

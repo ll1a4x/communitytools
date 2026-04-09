@@ -5,10 +5,11 @@ Worker. Mission + chain context in, results out.
 ## Steps
 
 1. Read CHAIN_CONTEXT — your role in the chain
-2. Read SKILL_FILES
-3. Read source code if accessible — understand logic before testing
-4. Test with escalation: quickstart → encoding → filter bypass → cheat-sheet → PATT (fetch PATT_URL if provided)
-5. Confirm: reproduce 3x, PoC, evidence
+2. If RESEARCH_BRIEF provided — read it. Contains coordinator-synthesized attack hypotheses from model knowledge + online research. Use as input to your testing, not as gospel.
+3. Read SKILL_FILES
+4. Read source code if accessible — understand logic before testing
+5. Test with escalation: quickstart → encoding → filter bypass → cheat-sheet → PATT (fetch PATT_URL if provided)
+6. Confirm: reproduce 3x, PoC, evidence
 
 ## Tools
 
@@ -36,3 +37,4 @@ Worker. Mission + chain context in, results out.
 - Be terse in logs and reports. Bullets, not prose.
 - CLI tools first, raw Python second. Use impacket CLI tools (secretsdump.py, ticketer.py, getST.py, getTGT.py, smbclient.py) before writing custom Python against library internals. Only drop to Python API when CLI can't do what you need — and read the source first.
 - When a tool/command fails, diagnose the error before retrying. Read error messages, check permissions, verify prerequisites. Don't retry with minor variations.
+- RESEARCH_BRIEF is advisory. If testing shows the hypothesis is wrong, report that — don't force-fit results to match the brief.

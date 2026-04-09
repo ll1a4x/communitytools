@@ -139,9 +139,9 @@ List what didn't work and why. Useful for skill improvement:
 
 ## Usage in Workflow
 
-### Step 11: Report Generation
+### Coordinator writes this report (HTB workflow step 7)
 ```bash
-# After coordinator completes
+# Coordinator generates before terminating:
 mkdir -p {OUTPUT_DIR}/reports
 
 # Write completion-report.md from sources:
@@ -152,21 +152,20 @@ mkdir -p {OUTPUT_DIR}/reports
 # - logs/ (activity timeline)
 ```
 
-### Step 12: Slack Notification
-```bash
-# Extract these fields for Slack message:
-# - Difficulty, OS, Duration (from Execution Summary)
-# - Flag status (from Statistics)
-# - Attack Chain (as narrative)
-# - Techniques Used (as bullet list for "Key Techniques")
-# - /skill-update output (for "Skills Updated")
-```
+### Parent orchestrator uses this report (HTB workflow step 8)
+After each coordinator completes, the **parent orchestrator** reads this report and:
 
-### Step 10: Skill Update
-The narrative attack chain and lessons learned inform which skills need updates. Pass to `/skill-update`:
-- **Techniques** used → update relevant skill (e.g., injection, server-side)
-- **Lessons** → add to cheat sheets / quickstart guides
-- **Failed approaches** → document in skill reference (why they failed)
+1. **Skill Update** — passes techniques, lessons learned, and failed approaches to `/skill-update`
+   - **Techniques** used → update relevant skill (e.g., injection, server-side)
+   - **Lessons** → add to cheat sheets / quickstart guides
+   - **Failed approaches** → document in skill reference (why they failed)
+
+2. **Slack Notification** — composes message from:
+   - Difficulty, OS, Duration (from Execution Summary)
+   - Flag status (from Statistics)
+   - Attack Chain (as narrative)
+   - Techniques Used (as bullet list for "Key Techniques")
+   - `/skill-update` output (for "Skills Updated")
 
 ---
 

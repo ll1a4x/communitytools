@@ -13,7 +13,7 @@ Test system-level security including Active Directory, privilege escalation, and
 |------|-------------|
 | **Active Directory** | Kerberoasting, AS-REP roasting, DCSync, PtH, Golden/RODC Ticket, RBCD, ACL abuse, KeyList |
 | **Privilege Escalation** | SUID/sudo abuse, kernel exploits, service misconfig, token manipulation |
-| **Exploit Development** | Buffer overflow, format string, ROP chains, shellcode |
+| **Exploit Development** | Buffer overflow, format string, ROP chains, shellcode, heap exploitation |
 
 ## Workflow
 
@@ -26,3 +26,4 @@ Test system-level security including Active Directory, privilege escalation, and
 ## Reference
 
 - `reference/system-exploitation.md` - AD attacks, privilege escalation, exploit development techniques
+- `reference/heap-exploitation.md` - Modern glibc heap techniques (tcache poison, unsorted bin leak, environ stack leak, ROP)

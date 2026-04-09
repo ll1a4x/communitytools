@@ -15,10 +15,11 @@ context: fork
 5. If necessary, start the machines
 6. If necessary, check network connectivity to the machines
 7. Spawn and manage coordinator pool — max N concurrent agents, queue-based spawning (new agent spawns when previous completes)
+8. Post-solve loop — for each completed coordinator: read completion report + stats, run `/skill-update` with learnings, send Slack notification
 
 ## References
 - [workflow.md](reference/workflow.md) — Workflow overview with credentials, VPN, setup, and coordinator spawn
-- [coordinator-spawn.md](reference/coordinator-spawn.md) — Coordinator agent spawn prompt template (includes flag submission, reporting, skill-update, slack notifications)
+- [coordinator-spawn.md](reference/coordinator-spawn.md) — Coordinator agent spawn prompt template (exploitation, flag submission, completion report, stats)
 - [completion-report-schema.md](../../formats/htb-completion-report.md) — Challenge completion report structure & template
 - [slack-notifications.md](reference/slack-notifications.md) — Slack completion notification format & examples
 - [platform-navigation.md](reference/platform-navigation.md) — HTB site navigation guide

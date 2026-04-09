@@ -12,6 +12,7 @@ Executors receive ALL of the following:
 5. **Objective** — clear description of what to test
 6. **MISSION_ID** — unique identifier
 7. **OUTPUT_DIR** — where to write results
+8. **RESEARCH_BRIEF** (optional) — max 10 lines of synthesized research from coordinator's P2b phase. Only included when creative research was triggered.
 
 ## Validator Context — BLIND REVIEW
 
@@ -27,6 +28,7 @@ Validators MUST NOT receive:
 - Other findings (prevents cross-contamination)
 - Executor mission logs or objectives
 - Skill files or PATT URLs (irrelevant to validation)
+- RESEARCH_BRIEF (prevents confirmation bias, same as chain)
 
 ## Skill Mounts by Role
 
@@ -44,6 +46,13 @@ Mount ONLY:
 - The specific technique's cheat sheet IF needed to verify evidence format
 
 Do NOT mount the full attack skill — it biases judgment toward finding what the skill describes.
+
+### Research Brief Rules
+
+- RESEARCH_BRIEF is coordinator-synthesized — executors never do their own WebSearch
+- Max 10 lines: technique name, why it might work, key payload/pattern, source URL
+- Omit when no research was done (most batches)
+- Never pass raw WebFetch output to executors — always distill first
 
 ## Rationale
 
