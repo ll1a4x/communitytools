@@ -13,6 +13,8 @@ Executors receive ALL of the following:
 6. **MISSION_ID** — unique identifier
 7. **OUTPUT_DIR** — where to write results
 8. **RESEARCH_BRIEF** (optional) — max 10 lines of synthesized research from coordinator's P2b phase. Only included when creative research was triggered.
+9. **EXPERIMENT_ID** — the experiment row ID this executor must update on completion
+10. **Experiments table** — `{OUTPUT_DIR}/experiments.md` (read for context, write to update own row)
 
 ## Validator Context — BLIND REVIEW
 

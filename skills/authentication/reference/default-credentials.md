@@ -37,6 +37,22 @@ ubnt:ubnt         netscreen:netscreen  pi:raspberry  admin:0000
 support:support   admin:admin123    Admin:Admin
 ```
 
+### Windows Services (RDP / SMB / WinRM)
+```
+Administrator:(blank)  Administrator:admin  Administrator:password
+Administrator:Password1  admin:admin  admin:(blank)
+```
+**Headless testing** (prefer over RDP for CLI environments):
+```bash
+# netexec tests SMB + WinRM in parallel, confirms Pwn3d! on success
+nxc smb TARGET -u Administrator -p ''
+nxc winrm TARGET -u Administrator -p ''
+# Command execution — try both cmd (-x) and PowerShell (-X)
+# When pywinrm/evil-winrm fail with "Access Denied", nxc -X often succeeds
+nxc winrm TARGET -u USER -p PASS -x 'type C:\Users\USER\Desktop\flag.txt'
+nxc winrm TARGET -u USER -p PASS -X 'type C:\Users\USER\Desktop\flag.txt'  # PowerShell fallback
+```
+
 ### IoT / Embedded / Industrial
 ```
 admin:admin  root:root  root:(blank)  admin:(blank)  supervisor:supervisor
@@ -273,6 +289,20 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 4. **Try common passphrases first** — username, hostname, service name, company name, simple patterns
 5. **Check bcrypt rounds** — if very low, even a large wordlist is feasible
 6. **Python fallback** — if john cannot handle the format
+
+
+## Service Credential Reuse
+
+When exploiting chat bots, automation services, or internal tools, always check their configuration for credentials that may be reused by the human who configured them:
+
+**High-value config locations:**
+- `.env` files (Hubot, Node.js apps, Docker services)
+- `config.yml` / `settings.json` in app directories
+- Environment variables in systemd unit files (`/etc/systemd/system/*.service`)
+- Cron scripts with embedded passwords
+- Database connection strings in web app configs
+
+**Reuse testing:** Try discovered service passwords for SSH, sudo, web admin panels, and database access as the user who owns/configured the service. Service accounts (bots, automation) are frequently configured with the operator's personal password.
 
 ## CWE / References
 

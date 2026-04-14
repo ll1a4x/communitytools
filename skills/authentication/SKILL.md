@@ -12,6 +12,7 @@ Test authentication mechanisms including login security, token handling, 2FA, CA
 | Type | Key Vectors |
 |------|-------------|
 | **Auth Bypass** | Default credentials, logic flaws, response manipulation |
+| **ADFS/SAML** | Golden SAML, token signing cert theft, assertion manipulation, SAML wrapping |
 | **JWT** | Algorithm confusion, key injection, claim tampering, token forging |
 | **OAuth** | Redirect manipulation, CSRF, token leakage, scope abuse |
 | **Password** | Brute force, credential stuffing, password policy bypass |
@@ -48,6 +49,7 @@ mgr.store_credential(target="example.com", username="test", password="pass")
 - `reference/jwt*.md` - JWT attack techniques and cheat sheets
 - `reference/oauth*.md` - OAuth vulnerability testing
 - `reference/password-attacks.md` - Password attack vectors
+- `reference/adfs-exploitation.md` - ADFS, Golden SAML, federation attacks
 - `reference/2FA_BYPASS.md` - 10 2FA bypass methods
 - `reference/CAPTCHA_BYPASS.md` - 11 CAPTCHA bypass techniques
 - `reference/BOT_DETECTION.md` - Bot detection evasion strategies

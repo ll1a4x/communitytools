@@ -11,7 +11,7 @@ Test system-level security including Active Directory, privilege escalation, and
 
 | Type | Key Vectors |
 |------|-------------|
-| **Active Directory** | Kerberoasting, AS-REP roasting, DCSync, PtH, Golden/RODC Ticket, RBCD, ACL abuse, KeyList |
+| **Active Directory** | Kerberoasting, AS-REP roasting, DCSync, PtH, Golden/RODC Ticket, RBCD, ACL abuse, KeyList, Shadow Credentials, ADCS (ESC1-9/16) |
 | **Privilege Escalation** | SUID/sudo abuse, kernel exploits, service misconfig, token manipulation |
 | **Exploit Development** | Buffer overflow, format string, ROP chains, shellcode, heap exploitation |
 
@@ -26,4 +26,5 @@ Test system-level security including Active Directory, privilege escalation, and
 ## Reference
 
 - `reference/system-exploitation.md` - AD attacks, privilege escalation, exploit development techniques
+- `reference/format-string-exploitation.md` - Format string read/write primitives, architecture differences, mitigation bypass
 - `reference/heap-exploitation.md` - Modern glibc heap techniques (tcache poison, unsorted bin leak, environ stack leak, ROP)

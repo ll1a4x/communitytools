@@ -111,6 +111,17 @@ username=../../v1/users/admin/field/passwordResetToken%23
 
 ---
 
+## API Version Authorization Bypass
+
+Deprecated API versions often retain functionality but lack authorization checks added in newer versions. When multiple versions exist, **test every sensitive operation on all versions**:
+
+1. **Discover versions**: Extract from JS bundles (webpack/Next.js chunks often contain `endpointsV1`/`endpointsV2` config objects), or fuzz `/api/v{1,2,3}/` paths
+2. **Compare authorization**: If v2 returns 403, try v1 — deprecated versions may skip auth middleware
+3. **Check for exclusive endpoints**: Some versions have unique endpoints (e.g., v2 adds `/inquire`) — these are often insufficiently hardened
+4. **Watch for "deprecated" responses**: A response like `"API v1 is deprecated"` on some endpoints doesn't mean ALL v1 endpoints are disabled
+
+---
+
 ## Server-Side Parameter Pollution - Quick Reference
 
 ### Query String Injection Characters

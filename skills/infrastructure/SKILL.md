@@ -19,6 +19,7 @@ Test network infrastructure for vulnerabilities including network services, prot
 | **SMB/NetBIOS** | Null sessions, relay attacks, enumeration |
 | **Sniffing** | Packet capture, credential harvesting, protocol analysis |
 | **DoS** | Resource exhaustion, amplification, application-layer |
+| **ICS/SCADA** | Modbus TCP, PLC exploitation, coil/register manipulation, session hijacking |
 
 ## Workflow
 
@@ -39,6 +40,7 @@ Test network infrastructure for vulnerabilities including network services, prot
 - `reference/smb-netbios-quickstart.md` - SMB/NetBIOS exploitation
 - `reference/sniffing-quickstart.md` - Network sniffing and capture
 - `reference/dos-quickstart.md` - DoS assessment
+- `reference/ics-modbus-quickstart.md` - ICS/SCADA Modbus PLC exploitation
 
 **Scan techniques**: `reference/syn-scan.md`, `reference/udp-scan.md`, `reference/icmp-scan.md`, `reference/os-fingerprint.md`
 **Other**: `reference/firewall-detection.md`, `reference/service-enum.md`, `reference/ip-reputation.md`, `reference/overview.md`

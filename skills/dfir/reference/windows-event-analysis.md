@@ -69,3 +69,5 @@ with evtx.Evtx("Security.evtx") as log:
 | Service Control Manager | System | 7036/7045 | Service start/stop/install |
 | ESENT | Application | 102/103/105/216/300/325/326/327/330 | Database operations |
 | Microsoft-Windows-Ntfs | NTFS Operational | 98 | Volume mount/GUID assignment |
+| Microsoft-Windows-DNS-Client | DNS Client Events | 3006/3008/3009/3010/3018 | DNS query/response logging — reveals malicious domain lookups |
+| Microsoft-Windows-TaskScheduler | Task Scheduler | 106/140/141/200/201 | Scheduled task creation/execution (persistence) |

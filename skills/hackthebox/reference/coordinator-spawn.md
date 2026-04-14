@@ -2,7 +2,7 @@
 
 One coordinator per challenge. Queue-based pool, max N concurrent. Replace `{vars}` with values.
 
-**Naming convention** (required for hook enforcement):
+**Naming convention**:
 ```python
 Agent(
     name=f"htb-coordinator-{challenge_name}",
@@ -11,7 +11,6 @@ Agent(
     run_in_background=True
 )
 ```
-The `htb-coordinator` prefix is matched by the SubagentStop hook in `projects/ctf/.claude/settings.local.json` to enforce `/skill-update` after each solve.
 
 ---
 
@@ -32,8 +31,8 @@ HTB_USER={HTB_USER} HTB_PASS={HTB_PASS}
 
 ## OUTPUT_DIR
 {OUTPUT_DIR}
-Dirs: recon/ findings/ logs/ artifacts/ reports/
-Files: attack-chain.md flags.txt stats.json
+Dirs: recon/ findings/ logs/ artifacts/ tools/ reports/
+Files: attack-chain.md experiments.md flags.txt stats.json
 
 ## RULES
 1. Logic only. No Hydra, no sqlmap defaults. Understand first.
@@ -50,6 +49,7 @@ Files: attack-chain.md flags.txt stats.json
 ## APPROACH
 - Source code first. Understanding beats guessing.
 - Maintain attack-chain.md: theory, steps, results. Keep it terse — max 50 lines.
+- Maintain experiments.md: append every test, check for 3-strike before spawning. Log tool runs to tools/.
 - 1-2 experiments per batch. Integrate before next.
 - Stuck → re-read everything, challenge assumptions, different angle. Never fall back to spraying.
 - Pass only relevant PATT_URL to executors, not full map.
@@ -60,10 +60,25 @@ Files: attack-chain.md flags.txt stats.json
 1. Recon → read source code → write attack-chain.md → depth-first cycle per skills/coordination/SKILL.md
 
 ### Phase 2: Submit & Finalize
-2. Submit flags via Playwright → flags.txt
+2. Submit flags via HTB API → flags.txt
+   ```bash
+   curl -s -X POST -H "Authorization: Bearer $HTB_TOKEN" -H "Content-Type: application/json" \
+     -d '{"id": MACHINE_ID, "flag": "FLAG_VALUE", "difficulty": 10}' \
+     "https://labs.hackthebox.com/api/v4/machine/own"
+   ```
 3. Completion report → reports/completion-report.md (formats/htb-completion-report.md)
 4. stats.json: experiment_count, finding_count, agent_count, duration_seconds, submitted_flags
-5. Return stats + flags.
+
+### Phase 3: Post-Solve (MANDATORY — engagement is INCOMPLETE without these)
+5. **Run /skill-update** — pass techniques, lessons learned, and failed approaches from the completion report. Only generalizable patterns, no target-specific data. Save the output.
+6. **Send Slack notification** (if `SLACK_BOT_TOKEN` + `HTB_SLACK_CHANNEL_ID` are set):
+   - Read `.env` via `python3 tools/env-reader.py SLACK_BOT_TOKEN HTB_SLACK_CHANNEL_ID`
+   - If both are set: compose message per skills/hackthebox/reference/slack-notifications.md using completion report + stats + skill-update output
+   - Send via `python3 tools/slack-send.py --token "{SLACK_BOT_TOKEN}" --channel "{HTB_SLACK_CHANNEL_ID}" -`
+   - If either is NOT_SET: skip silently
+7. Return stats + flags + confirmation that skill-update and slack completed.
+
+**DO NOT terminate until Phase 3 is done. Returning without /skill-update is a mission failure.**
 
 Begin.
 ```

@@ -10,7 +10,9 @@ OUTPUT_DIR/
 ├── artifacts/          # Tool output, certs, dumps, configs
 │   ├── validated/      # Approved findings
 │   └── false-positives/# Rejected findings
+├── tools/              # Tool invocation archive (input + output per run)
 ├── attack-chain.md     # Living theory doc (max 50 lines)
+├── experiments.md      # Experiment registry (append-only)
 └── reports/            # Final PDF, completion reports
 ```
 
@@ -21,4 +23,5 @@ OUTPUT_DIR/
 | recon/ | formats/reconnaissance.md |
 | findings/ | formats/data.md |
 | logs/ | formats/logs.md |
+| tools/ | formats/logs.md |
 | reports/ | formats/transilience-report-style/pentest-report.md |

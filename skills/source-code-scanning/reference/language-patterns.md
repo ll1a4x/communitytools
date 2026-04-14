@@ -128,6 +128,10 @@ $_COOKIE['role'] === 'admin'              // trust client cookie
 // Type juggling
 "0e123" == "0e456"  // both == 0 in PHP (use ===)
 strcmp($hash, $input) == 0  // returns null if array passed
+// switch() uses loose comparison — boolean true matches any non-empty string case
+// Pattern: === guard then switch() → send JSON boolean true to bypass guard, match case
+// if ($json['type'] === 'admin') deny(); switch($json['type']) { case 'admin': ... }
+// Exploit: {"type": true} — fails ===, passes switch case (true == 'admin')
 
 // extract() from user input
 extract($_POST);  // mass variable injection

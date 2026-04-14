@@ -109,7 +109,7 @@ Before generating any final output, read the relevant format file from the index
 **NEVER write any file to the project root or current working directory.** Every file an agent produces — tool output, downloads, scripts, ... MUST go into a structured subtree. **Create the full directory tree at the very start of any engagement/task before doing anything else:**
 
 ```bash
-mkdir -p YYMMDD_hhmmss_<target-or-engagement>/{recon,findings,logs,artifacts,reports}
+mkdir -p YYMMDD_hhmmss_<target-or-engagement>/{recon,findings,logs,artifacts,tools,reports}
 ```
 
 ```
@@ -122,6 +122,7 @@ YYMMDD_hhmmss_<target-or-engagement>/
 │       └── evidence/   # Screenshots, HTTP captures
 ├── logs/               # Agents Activity logs (NDJSON)
 ├── artifacts/          # ALL tool-generated files (.crt, .key, database dumps, configs, hashes, ...)
+├── tools/              # Tool invocation archive (input + output per run)
 └── reports/            # Dirsearch, submission reports, final PDF, ...
 ```
 

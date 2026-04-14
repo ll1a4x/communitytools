@@ -1029,6 +1029,9 @@ https://trusted.com.attacker.com/jwks.json
 - [ ] Check for default secrets
 - [ ] Test empty/null secret
 - [ ] Check if secret is exposed in JS bundles, .env, or API responses
+  - Next.js: `curl -sk TARGET/_next/static/chunks/app/login/page-*.js | grep -i 'secret\|sign\|HS256\|encode'`
+  - React/Vue: check `static/js/main.*.js` or `assets/index-*.js` for `TextEncoder().encode("...")` or `jwt.sign` calls
+  - Look for patterns: `new TextEncoder().encode("KEY")`, `setProtectedHeader({alg:"HS256"})`, `jwt.sign(payload, "SECRET")`
 - [ ] Check JWKS endpoint for public key exposure (/.well-known/jwks.json)
 
 **Header Parameter Injection:**

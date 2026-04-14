@@ -14,7 +14,7 @@ P0: Ingest scope
  ↓
 P1: Recon + read source code → write attack-chain.md
  ↓
-┌→ P2: Think — read chain, write next step + reasoning, design 1-2 experiments
+┌→ P2: Think — read chain + experiments.md, dedup, design 1-2 experiments
 │  P2b: Research (conditional) — see reference/creative-research.md
 │  P3: Execute — spawn 1-2 executors with CHAIN_CONTEXT [+ RESEARCH_BRIEF]
 │  P4: Integrate — read results, update chain, revise theory
@@ -40,6 +40,17 @@ At `{OUTPUT_DIR}/attack-chain.md`. Updated every batch. Sections: services, surf
 
 Keep it terse — bullet points, no prose.
 
+## experiments.md
+
+At `{OUTPUT_DIR}/experiments.md`. Append-only table — never prune, never rewrite. Format: `formats/logs.md`.
+- P1: create header. P2: read → dedup → append row (result=pending). Executor updates on completion.
+- Dedup: skip if same technique + target exists unless parameters differ meaningfully.
+- 3-strike: `count(technique, result=fail) >= 3` → triggers rule 12.
+
+## tools/
+
+Executors log every significant tool invocation to `{OUTPUT_DIR}/tools/{NNN}_{tool}.md` with input + output. See `formats/logs.md`.
+
 ## Creative Research (P2b)
 
 Triggers — research when ANY of:
@@ -59,12 +70,14 @@ Consult `reference/context-injection.md` before building any agent prompt.
 ```python
 executor = Read("skills/coordination/reference/executor-role.md")
 chain = Read(f"{output_dir}/attack-chain.md")
+experiments = Read(f"{output_dir}/experiments.md")
 
 # Optional: if P2b produced a brief
 # research = "RESEARCH_BRIEF:\n- [model] ...\n- [web] ...\n- [skills] ..."
 
 # 1-2 executors per batch — pass only relevant PATT_URL, not full map
-Agent(prompt=f"{executor}\nMISSION_ID: m-001\nCHAIN_CONTEXT: {chain}\n"
+Agent(prompt=f"{executor}\nMISSION_ID: m-001\nEXPERIMENT_ID: E-001\n"
+      f"CHAIN_CONTEXT: {chain}\nEXPERIMENTS: {experiments}\n"
       f"OBJECTIVE: ...\nSKILL_FILES: ...\nPATT_URL: ...\nOUTPUT_DIR: {output_dir}\n"
       f"{research if research else ''}",
       description="Blind SQLi /search", run_in_background=True)
@@ -108,7 +121,7 @@ See `reference/context-injection.md` for what each role receives and what is wit
 9. Report gate: validated findings exist → PDF report required. Read `formats/transilience-report-style/pentest-report.md`.
 10. After validators complete, verify each validated finding has `evidence/validation/validation-summary.md`. Flag any that passed without proof.
 11. Sequential flag progression. In multi-flag challenges (HTB machines), secure each flag before attempting the next. The user-flag path often provides the foothold needed for root.
-12. 3-strike stuck detection. If the same technique fails 3 times with different errors, STOP. Write to attack-chain.md: (a) why it's failing, (b) is this path fundamentally blocked (check ACLs, PRP, group membership), (c) alternative paths. Do NOT continue retrying.
+12. 3-strike stuck detection. If experiments.md shows >= 3 fail rows for the same technique, STOP. Write to attack-chain.md: (a) why it's failing, (b) is this path fundamentally blocked, (c) alternative paths. Do NOT continue retrying.
 13. Read before calling library internals. Before writing Python against any library's internal API (Impacket, ldap3, pyasn1), read the relevant source file first. Never guess function signatures. Prefer CLI tools (secretsdump.py, ticketer.py, getST.py) over raw API calls.
 14. Background command discipline. Before spawning a background command, state what specific result it will produce. No speculative tunnels, relays, or listeners without a concrete plan to use them.
 15. Creative Research triggers: P4b (mandatory), 3-strike stuck, new tech discovered, no hypothesis. Follow `reference/creative-research.md`. Max 3 WebSearch + 2 WebFetch per cycle.

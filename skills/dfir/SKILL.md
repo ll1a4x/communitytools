@@ -13,8 +13,9 @@ Investigate security incidents by analyzing event logs, network captures, and fi
 |--------|-----------------|
 | **Windows Event Logs** | EVTX parsing, Event ID correlation, logon tracking, privilege enumeration |
 | **Network Forensics** | PCAP analysis, NTLM extraction, LLMNR/NBT-NS poisoning detection, relay identification |
-| **Filesystem Forensics** | MFT parsing, Prefetch analysis, VSS artifact recovery, timeline reconstruction |
+| **Filesystem Forensics** | MFT parsing, Prefetch analysis, VSS artifact recovery, Linux persistence, timeline reconstruction |
 | **AD Attack Detection** | Kerberoasting, AS-REP roasting, NTDS dump, NTLM relay, credential theft |
+| **Memory Forensics** | Volatility3 analysis: process trees, file extraction, SID resolution, command lines |
 | **Hash Analysis** | NTLMv2 hash construction from pcap, offline cracking validation |
 
 ## Workflow
@@ -40,6 +41,7 @@ brew install wireshark p7zip hashcat
 | `analyzeMFT` | Parse NTFS Master File Table |
 | `windowsprefetch` | Parse Windows prefetch files (Windows host only) |
 | `hashcat` | Hash cracking (NTLMv2 mode 5600, Kerberos mode 13100/18200) |
+| `volatility3` | Memory dump analysis (pstree, filescan, dumpfiles, getsid, cmdline) |
 | `7z` | Extract AES-encrypted evidence ZIPs |
 
 ## Quick Reference: Key Event IDs
@@ -54,6 +56,8 @@ brew install wireshark p7zip hashcat
 | 7036 | System | Service state change (VSS start → NTDS dump) |
 | 325/326/327 | Application | ESENT database create/detach/close |
 | 330 | Application | ESENT database file info |
+| 3006/3008 | DNS Client Events | DNS query sent/response received (malicious domain lookups) |
+| 106/200 | Task Scheduler | Scheduled task created/executed (persistence via schtasks) |
 
 ## Reference
 
@@ -63,7 +67,8 @@ brew install wireshark p7zip hashcat
 
 ## Critical Rules
 
-- All timestamps in **UTC** — convert from local time zones in pcap/logs
+- **Answer formatting**: When forensics questions ask for "the value" of a code variable (e.g., PHP `$shell`), include language-specific string delimiters and terminators (e.g., `'value';` not just `value`). Check placeholder hints for format clues.
+- All timestamps in **UTC** — convert from local time zones in pcap/logs. **AM/PM trap**: 12:XX AM = 00:XX (midnight), 12:XX PM = 12:XX (noon). 12 AM ≠ 01:00.
 - Parse EVTX with `python-evtx` (XML namespace: `http://schemas.microsoft.com/win/2004/08/events/event`)
 - Use `tshark` for pcap (not scapy for large files) — filter with `-Y` display filters
 - Decompress Win10 prefetch (MAM\x04 header) with `dissect.util.compression.lzxpress_huffman`

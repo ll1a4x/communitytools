@@ -133,6 +133,31 @@ for s in re.findall(b'(?:[\x20-\x7e]\x00){4,}', decompressed):
 
 **Note**: `windowsprefetch` Python library only works on Windows (needs `ctypes.windll`). Use manual binary parsing on macOS/Linux.
 
+## MFT Resident Files (Small File Content Recovery)
+
+Files < ~700 bytes are stored directly in the MFT record ($DATA attribute is "resident"). To recover:
+1. Find MFT entry number from `analyzeMFT` CSV → calculate hex offset: `entry * 1024`
+2. Read at that offset in `$MFT` with hex editor or `xxd`
+
+```bash
+# Calculate offset and extract
+python3 -c "print(hex(5443 * 1024))"  # → 0x550C00
+xxd -s 0x550C00 -l 1024 '$MFT'
+```
+
+Useful for recovering deleted notes, small configs, scripts.
+
+## Windows Firewall Logs
+
+Windows firewall log (`pfirewall.txt`) at `C:\Windows\System32\LogFiles\Firewall\pfirewall.txt`.
+
+```
+# Fields: date time action protocol src-ip dst-ip src-port dst-port size tcpflags tcpsyn tcpack tcpwin icmptype icmpcode info path
+2023-05-05 15:24:17 ALLOW TCP 172.17.79.129 13.232.96.186 50045 80 0 - 0 0 0 - - - SEND
+```
+
+Useful for: identifying highest source port to malicious IP, confirming C2 connections, network timeline.
+
 ## VSS Artifacts
 
 Volume Shadow Copy creates snapshots visible as `\Device\HarddiskVolumeShadowCopy<N>`.
@@ -140,3 +165,35 @@ Volume Shadow Copy creates snapshots visible as `\Device\HarddiskVolumeShadowCop
 - **Volume GUID**: Found in NTFS operational log — `\\?\Volume{GUID}` associated with the shadow copy device
 - **Snapshot path**: `\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\<path>` — visible in ESENT Event 216/330
 - **ntdsutil snapshot mount**: Creates `C:\$SNAP_<timestamp>_VOLUMEC$\` mount point
+
+## Linux Persistence Artifacts
+
+### Systemd Service Units
+
+Malicious services installed to persistence directories:
+- `/usr/lib/systemd/system/` (system-wide, requires root)
+- `/etc/systemd/system/` (admin overrides)
+- `~/.config/systemd/user/` (user-level, no root needed)
+
+**Analysis checklist**:
+1. Check all fields — payloads hide in any field (`Description`, `ExecStart`, `ExecStop`, `ExecStartPre`)
+2. Decode embedded base64 blobs (`echo -e "..." | base64 --decode`)
+3. Look for `WantedBy=multi-user.target` (auto-start on boot)
+4. Trace downloaded binaries (`curl`/`wget` targets in installer scripts)
+
+### Bash Persistence Scripts
+
+Common patterns:
+- **Environment gating**: `whoami`/`hostname` checks limit execution to target host
+- **Fake package repos**: Domains mimicking legitimate registries (e.g., `pypi-install.com` vs `pypi.org`)
+- **Encoded payloads**: Base64/hex-encoded configs written via `echo -e "..." | base64 --decode > /path`
+
+### Other Linux Persistence Locations
+
+| Location | Purpose |
+|----------|---------|
+| `/etc/cron.d/`, crontab entries | Scheduled execution |
+| `~/.bashrc`, `/etc/profile.d/` | Shell initialization hooks |
+| `/etc/ld.so.preload` | Shared library injection |
+| Authorized SSH keys | `~/.ssh/authorized_keys` backdoor |
+| PAM modules | `/etc/pam.d/` authentication hooks |

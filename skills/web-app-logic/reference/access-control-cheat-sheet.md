@@ -175,7 +175,9 @@ privilege=admin
 /api/document/123
 /download/file/456
 /order/1001/receipt → /order/1099/receipt
+/chat/?rid=6 → /chat/?rid=1          # Read other users' private conversations
 ```
+Chat/messaging and real-time features (Socket.IO rooms, WebSocket channels) often use sequential room IDs without ownership checks. After creating a conversation, note your assigned room ID and enumerate lower IDs.
 
 **Action/Write IDOR (performing actions on other users' objects):**
 ```
@@ -229,6 +231,18 @@ for i in $(seq 1000 1100); do
     -o /dev/null -w "$i: %{http_code} %{size_download}\n"
 done
 ```
+
+**API Version Differential IDOR:**
+When an app exposes multiple API versions (v1, v2, v3), deprecated versions often lack authorization checks added in newer versions. Always test the same operation across all discovered versions:
+```bash
+# Frontend uses v2 (authorized) — try v1 (may be unprotected)
+curl -s -b "$COOKIE" -X POST /api/v2/transactions/download -d '{"_id":"TARGET_ID"}'  # 403
+curl -s -b "$COOKIE" -X POST /api/v1/transactions/download -d '{"_id":"TARGET_ID"}'  # 200 ← IDOR
+```
+Discovery: Extract API version maps from JavaScript bundles (webpack chunks, Next.js `_next/static/chunks/`). Look for config objects like `endpointsV1`/`endpointsV2` — they reveal all routes for each version.
+
+**User Lookup → IDOR Chain:**
+Endpoints like `/api/auth/inquire?username=X` or `/api/users/search?q=X` that return internal IDs (ObjectIds, UUIDs, numeric IDs) enable targeted IDOR. Always check for user lookup/search/autocomplete endpoints that leak IDs needed for other IDOR attacks.
 
 ---
 

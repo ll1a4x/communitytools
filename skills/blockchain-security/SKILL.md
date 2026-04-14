@@ -44,7 +44,17 @@ Contract addresses from CREATE are deterministic: `keccak256(rlp([sender, nonce]
 - Read private variables via `eth_getStorageAt`
 - See [reference/storage-layout.md](reference/storage-layout.md)
 
-### 4. Common Vulnerability Classes
+### 4. Empty Array / Zero-Length Input Bypass
+When a function loops over a user-supplied array to validate items (signatures, approvals, votes), passing an **empty array** skips the loop entirely. If there's no minimum-length check, validation is bypassed.
+- Check: `for (uint i = 0; i < arr.length; i++)` with no `require(arr.length >= N)`
+- Exploit: Call the function with `[]` to skip all validation
+
+### 5. ECDSA Signature Malleability
+Raw `ecrecover` accepts both `(v, r, s)` and `(v', r, N-s)` (where N = secp256k1 order, v flipped 27↔28). If a contract deduplicates signatures by hash of raw bytes, the malleable form has a different hash but recovers to the same signer.
+- Check: `ecrecover` used without `s <= N/2` enforcement (OpenZeppelin's ECDSA.sol enforces this)
+- Exploit: Take a known valid signature, compute `new_s = N - s`, flip `v`, submit as "new" signature
+
+### 6. Common Vulnerability Classes
 | Vulnerability | Check |
 |---|---|
 | Reentrancy | External calls before state updates |
@@ -54,6 +64,8 @@ Contract addresses from CREATE are deterministic: `keccak256(rlp([sender, nonce]
 | tx.origin auth | `tx.origin` instead of `msg.sender` |
 | Selfdestruct | Force-send ETH, reset contract nonce |
 | Weak randomness | blockhash/timestamp as entropy source |
+| Empty array bypass | Loop validation with no min-length check |
+| Signature malleability | Raw ecrecover without s-normalization |
 
 ## Tools
 ```python

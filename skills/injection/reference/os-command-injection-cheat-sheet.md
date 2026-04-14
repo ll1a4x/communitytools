@@ -443,6 +443,14 @@ X-Forwarded-For:
 X-Real-IP:
 Referer:
 X-Custom-Header:
+
+# Hidden Injection Surfaces (secondary processing)
+# Markdown/rich-text fields that fetch external resources (image URLs → shell exec)
+# File conversion endpoints (PDF generators, image processors shelling to convert/ffmpeg)
+# Webhook/callback URL fields (server fetches URL via curl/wget subprocess)
+# Template rendering with server-side resource inclusion
+# Export/report generators that invoke CLI tools
+# DNS/network diagnostic tools (ping, traceroute, nslookup wrappers)
 ```
 
 ## Detection Methodology

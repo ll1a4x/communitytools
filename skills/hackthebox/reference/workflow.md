@@ -82,23 +82,26 @@ Each agent writes to its own `OUTPUT_DIR` (unique per challenge).
 
 **Reference**: See [coordinator-spawn.md](coordinator-spawn.md) for coordinator spawn prompt template.
 
-## 8. Post-Solve Loop (parent orchestrator)
+## 8. Post-Solve Verification (parent orchestrator)
 
-**The parent orchestrator handles skill-update and Slack for every completed coordinator.** This guarantees these steps always run, even if a coordinator runs out of context or errors out.
-
-**Hook enforcement** (active in `projects/ctf/`): When a coordinator named `htb-coordinator-*` completes, a `SubagentStop` hook injects a mandatory `/skill-update` reminder into the parent context. `slack-send.py` is **blocked** by a `PreToolUse` hook until `/skill-update` runs and creates `.skill-update-done` in the output dir. See `.claude/hooks/htb-skill-update-gate.sh`.
+Each coordinator runs `/skill-update` and sends Slack as Phase 3 of its mission (see coordinator-spawn.md). The parent orchestrator **verifies** this happened.
 
 After each coordinator completes:
 
-1. **Read outputs** — `{OUTPUT_DIR}/reports/completion-report.md` + `{OUTPUT_DIR}/stats.json`
-2. **Run `/skill-update`** — pass techniques, lessons learned, and failed approaches from the completion report. Only generalizable patterns, no target-specific data.
-3. **Send Slack notification** (if `SLACK_BOT_TOKEN` + `HTB_SLACK_CHANNEL_ID` are set):
-   - Compose message per [slack-notifications.md](slack-notifications.md) using completion report + stats + skill-update output
-   - Send via `python3 tools/slack-send.py --token "{SLACK_BOT_TOKEN}" --channel "{HTB_SLACK_CHANNEL_ID}" -`
-4. **Log completion** to parent console
-5. **Spawn next** challenge from queue (if any remain)
+1. **Read coordinator return** — check it confirms skill-update and Slack completed
+2. **Verify outputs exist** — `{OUTPUT_DIR}/reports/completion-report.md` + `{OUTPUT_DIR}/stats.json`
+3. **If coordinator skipped Phase 3** (crashed, ran out of context, or didn't confirm):
+   - Read `{OUTPUT_DIR}/reports/completion-report.md` + `{OUTPUT_DIR}/stats.json`
+   - Run `/skill-update` with techniques and lessons from the completion report
+   - Send Slack notification per [slack-notifications.md](slack-notifications.md)
+4. **Spawn next** challenge from queue (if any remain)
 
 If the completion report is missing (coordinator crashed), log a warning and skip skill-update/Slack for that challenge. Do not block the queue.
+
+## API Submission Notes
+
+- **Rate limiting**: Add 2-2.5 second delays between API flag submissions. "Too Many Attempts" requires 2-3 minute cooldown.
+- **Writeup PDF extraction**: Always use `pdftotext` CLI for exact text — visual PDF rendering causes font kerning errors (e.g., "ww" renders as "wu"). Never guess characters from images.
 
 ## Flag Progression (Multi-Flag Machines)
 
@@ -107,6 +110,6 @@ HTB machines are designed as chains — each flag builds on the previous foothol
 1. **User flag first, always.** Establish stable access before attempting root.
 2. **From user shell, enumerate for root.** The user context often reveals the root path (sudo -l, groups, SeBackupPrivilege, RODC access, etc.)
 3. **Don't skip steps.** Advanced techniques (RODC golden tickets, kernel exploits) require prerequisites that earlier flags provide.
-4. **AD machines: enumerate ACLs early.** Run `bloodyAD get writable` and BloodHound. Check ForceChangePassword, GenericWrite (scriptPath hijack), WriteDACL, RBCD paths, SeBackupPrivilege, MachineAccountQuota. These are the most common HTB AD escalation vectors.
+4. **AD machines: enumerate ACLs early.** Run `bloodyAD get writable` and BloodHound. Check ForceChangePassword, GenericWrite (scriptPath hijack), WriteDACL, RBCD paths, SeBackupPrivilege, MachineAccountQuota, **WriteSPN on multiple computers** (SPN jacking for constrained delegation redirect), **constrained delegation** (msDS-AllowedToDelegateTo). These are the most common HTB AD escalation vectors.
 5. **Clock skew breaks Kerberos.** If any Kerberos tool fails, check skew and use `faketime` prefix.
 6. **Internal subnets need tunneling.** If you find Hyper-V (port 2179), dual NICs, or internal IPs — set up Ligolo-ng or chisel to reach internal hosts.

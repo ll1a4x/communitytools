@@ -96,10 +96,10 @@ python3 tools/slack-send.py \
 - If either is `NOT_SET`, skip Slack notifications silently
 
 ### Completion Report Source
-The **parent orchestrator** (HTB workflow step 8) sends these notifications after each coordinator completes — not the coordinator itself.
+The **coordinator** sends this notification as Phase 3 of its mission (see coordinator-spawn.md), after running `/skill-update`.
 - Build notifications from `{OUTPUT_DIR}/reports/completion-report.md`
 - Extract stats from `{OUTPUT_DIR}/stats.json`
-- Get skill updates from `/skill-update` output (run by parent after reading completion report)
+- Include skill updates from the `/skill-update` output just completed
 
 ### Narrative Guidelines
 - Write as **connected story**, not disconnected steps

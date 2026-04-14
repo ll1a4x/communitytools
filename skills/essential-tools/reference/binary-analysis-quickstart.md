@@ -65,12 +65,53 @@ objdump -s -j .rodata <binary>
 
 **Example:** Little-endian 32-bit array `0x48000000 0x54000000` decodes to `H` (0x48) + `T` (0x54)
 
-### Pattern 3: Password-Gated Flag Output
+### Pattern 3: Reversed Strings
+**Indicator:** `reverse` function in symbol table, string in .data looks like gibberish but is readable backwards  
+**Approach:**
+1. Dump .data section with `objdump -s -j .data`
+2. Reverse the string: `python3 -c "print('0wTdr0wss4P'[::-1])"`
+3. Look for `reverse()` calls in disassembly to confirm
+
+### Pattern 4: XOR-Encoded Strings
+**Indicator:** `xor` function in symbol table, .data contains non-printable or garbled bytes, disassembly shows a byte key loaded into register (e.g., `movl $0x13, %ecx`)  
+**Approach:**
+1. Find XOR key from disassembly (register argument to xor function)
+2. Find data address and length from the calling code
+3. Dump bytes: `objdump -s -j .data <binary>`
+4. Decode: `python3 -c "data=bytes([0x47,0x7b,...]); print(''.join(chr(b^KEY) for b in data))"`
+
+### Pattern 5: Password-Gated Flag Output
 **Indicator:** Program reads input, compares against hardcoded value, outputs flag on match  
 **Approach:**
 1. Extract password from strings or data section
 2. Provide password via stdin
 3. Capture flag output
+
+### Pattern 6: "Decoy" Flags That Are Real
+**Indicator:** Binary contains an obvious flag-like string (e.g., `HTB{younevergoingtofindme}`) alongside complex obfuscation  
+**Approach:** Always try submitting obvious strings FIRST before deep analysis. Challenges sometimes hide the real flag in plain sight as a misdirection tactic.
+
+### Pattern 7: .NET Metadata String Extraction
+**Indicator:** PE32 .NET assembly, `file` shows "Mono/.Net assembly"  
+**Approach:**
+1. Find `BSJB` marker (CLR metadata header) in binary
+2. Parse stream headers to locate `#US` (User Strings) heap
+3. Extract all user string literals — these contain hardcoded passwords, usernames, flag components
+4. `python3 -c "data=open('binary','rb').read(); idx=data.find(b'BSJB'); ..."` for manual parsing when ILSpy unavailable
+
+### Pattern 8: Python Bytecode Decompilation
+**Indicator:** `.pyc` file or embedded Python bytecode (marshal data)  
+**Approach:**
+1. Python 2.7 `.pyc`: 4-byte magic (`03f30d0a`) + 4-byte timestamp + marshalled code
+2. `python3 -c "import marshal,dis; co=marshal.loads(data[8:]); dis.dis(co)"` for disassembly
+3. Inspect `co.co_consts` recursively — flags often stored as string constants in nested code objects
+
+### Pattern 9: Quiz/Exam Services
+**Indicator:** Challenge has a docker container that asks questions about the binary (file format, architecture, function addresses, passwords)  
+**Approach:**
+1. Complete full static analysis FIRST (all patterns above)
+2. Connect to service and answer questions programmatically via socket
+3. Common questions: file format, CPU arch, linked libraries, function addresses, call counts, decoded passwords, encoding keys (often wants decimal, not hex)
 
 ---
 
