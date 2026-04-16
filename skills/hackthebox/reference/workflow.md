@@ -2,10 +2,48 @@
 
 ## 1. Get Credentials
 ```bash
-python3 ./tools/env-reader.py HTB_USER HTB_PASS ANTHROPIC_API_KEY SLACK_BOT_TOKEN HTB_SLACK_CHANNEL_ID
+python3 ./tools/env-reader.py HTB_USER HTB_PASS HTB_TOKEN ANTHROPIC_API_KEY SLACK_BOT_TOKEN HTB_SLACK_CHANNEL_ID
 ```
-Use `HTB_USER`/`HTB_PASS` from `ENV_VALUES`. Only `AskUserQuestion` if `NOT_SET`.
-Slack is enabled when BOTH `SLACK_BOT_TOKEN` and `HTB_SLACK_CHANNEL_ID` are set.
+
+### HTB Credentials & API Token
+
+| Variable | Purpose | Usage |
+|----------|---------|-------|
+| `HTB_USER` | HTB account email | Browser login at `app.hackthebox.com/login` |
+| `HTB_PASS` | HTB account password | Browser login (with Turnstile) |
+| `HTB_TOKEN` | HTB API Bearer token | API calls (`labs.hackthebox.com/api/v4/`) — flag submission, machine spawn/stop, challenge info |
+
+- Use `HTB_USER`/`HTB_PASS` for browser-based login (Playwright headed mode)
+- Use `HTB_TOKEN` as `Authorization: Bearer $HTB_TOKEN` for all HTB API calls (flag submission, machine management, challenge metadata)
+- Only `AskUserQuestion` if a required variable returns `NOT_SET`
+- Slack is enabled when BOTH `SLACK_BOT_TOKEN` and `HTB_SLACK_CHANNEL_ID` are set
+
+### HTB API Examples (using HTB_TOKEN)
+```bash
+# Submit machine flag
+curl -s -X POST -H "Authorization: Bearer $HTB_TOKEN" -H "Content-Type: application/json" \
+  -d '{"id": MACHINE_ID, "flag": "FLAG_VALUE", "difficulty": 10}' \
+  "https://labs.hackthebox.com/api/v4/machine/own"
+
+# Submit challenge flag
+curl -s -X POST -H "Authorization: Bearer $HTB_TOKEN" -H "Content-Type: application/json" \
+  -d '{"id": CHALLENGE_ID, "flag": "FLAG_VALUE", "difficulty": 10}' \
+  "https://labs.hackthebox.com/api/v4/challenge/own"
+
+# Get active machine info
+curl -s -H "Authorization: Bearer $HTB_TOKEN" \
+  "https://labs.hackthebox.com/api/v4/machine/active"
+
+# Spawn machine
+curl -s -X POST -H "Authorization: Bearer $HTB_TOKEN" -H "Content-Type: application/json" \
+  -d '{"machine_id": MACHINE_ID}' \
+  "https://labs.hackthebox.com/api/v4/vm/spawn"
+
+# Stop machine
+curl -s -X POST -H "Authorization: Bearer $HTB_TOKEN" -H "Content-Type: application/json" \
+  -d '{"machine_id": MACHINE_ID}' \
+  "https://labs.hackthebox.com/api/v4/vm/terminate"
+```
 
 ## 2. Check VPN
 Only for "Machine" kind of competition -> Verify vpn is running, otherwise download the vpn file from HTB and instruct the user on how to enable it

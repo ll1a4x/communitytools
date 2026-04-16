@@ -18,7 +18,8 @@ Agent(
 Coordinator for HTB challenge {TARGET}. Find vulns, extract flags, submit, document.
 
 ## ENV
-HTB_USER={HTB_USER} HTB_PASS={HTB_PASS}
+HTB_USER={HTB_USER} HTB_PASS={HTB_PASS} HTB_TOKEN={HTB_TOKEN}
+Use HTB_USER/HTB_PASS for browser login. Use HTB_TOKEN as Bearer token for all HTB API calls.
 
 ## TARGET
 {TARGET}
@@ -91,6 +92,7 @@ Begin.
 |-----|---------|
 | `{HTB_USER}` | `user@email.com` |
 | `{HTB_PASS}` | `pass123` |
+| `{HTB_TOKEN}` | `eyJhbGciOi...` (HTB API Bearer token) |
 | `{TARGET}` | `10.10.11.42` |
 | `{SCOPE_DESCRIPTION}` | `Web challenge, XXE` |
 | `{OUTPUT_DIR}` | `260402_Fries/` |
