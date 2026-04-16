@@ -1102,7 +1102,7 @@ def load_key(kid):
 ```python
 import jwt
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 class JWTHandler:
     def __init__(self):
@@ -1114,8 +1114,8 @@ class JWTHandler:
         """Create a secure JWT token"""
         payload = {
             'sub': user_id,
-            'iat': datetime.utcnow(),
-            'exp': datetime.utcnow() + timedelta(minutes=self.expiration_minutes),
+            'iat': datetime.now(timezone.utc),
+            'exp': datetime.now(timezone.utc) + timedelta(minutes=self.expiration_minutes),
             'iss': 'https://my-app.com',
             'aud': 'https://my-api.com'
         }
