@@ -128,15 +128,19 @@ YYMMDD_hhmmss_<target-or-engagement>/
 
 ## Credential & Environment Variable Loading
 
-**MANDATORY**: Before using `AskUserQuestion` to ask the user for credentials, API keys, tokens, or any configuration value, ALWAYS read from `.env` first:
+**MANDATORY — NO EXCEPTIONS**: Whenever you need ANY environment variable, credential, API key, token, or configuration value, you MUST use the env-reader tool **first**:
 
 ```bash
 python3 tools/env-reader.py VAR1 VAR2 VAR3
 ```
 
-Only ask the user if `env-reader.py` returns `NOT_SET` for the needed variable. This applies to ALL agents.
+**Rules (apply to ALL agents — coordinator, executors, validators):**
 
-**NEVER** try to read `.env` files directly via `source .env`, `cat .env`, or `echo $VAR` in Bash — these will always fail because each Bash invocation is a fresh shell with no `.env` loaded. The `env-reader.py` tool parses `.env` files reliably via Python.
+1. **Always use `env-reader.py`** — this is the ONLY approved method for reading environment variables
+2. **Never ask the user first** — run `env-reader.py` before using `AskUserQuestion`. Only ask the user if the tool returns `NOT_SET`
+3. **Never read `.env` directly** — `source .env`, `cat .env`, `echo $VAR`, `os.environ`, `dotenv.load()` in Bash will ALL fail because each Bash invocation is a fresh shell with no `.env` loaded. The `env-reader.py` tool parses `.env` files reliably via Python
+4. **Spawned agents must include this rule** — when writing executor/validator prompts, remind them: _"Use `python3 tools/env-reader.py` for any env vars. Never source .env or ask the user without checking env-reader first."_
+5. **Common variables to check**: `HTB_TOKEN`, `HACKERONE_TOKEN`, `SLACK_TOKEN`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `FLAG` — always try env-reader before assuming they're unavailable
 
 ## Git Conventions
 See `skills/coordination/reference/GIT_CONVENTIONS.md`
