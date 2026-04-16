@@ -12,7 +12,7 @@ Inline. Holds context. Thinks before every action.
 ```
 P0: Ingest scope
  ↓
-P1: Recon + read source code → write attack-chain.md
+P1: Recon + read source code → write attack-chain.md + create experiments.md header
  ↓
 ┌→ P2: Think — read chain + experiments.md, dedup, design 1-2 experiments
 │  P2b: Research (conditional) — see reference/creative-research.md
@@ -28,7 +28,7 @@ P5: Validate + Report
 
 ### Steps
 
-1. **Recon + Source Code** — read all accessible source code (see `formats/reconnaissance.md`)
+1. **Recon + Source Code** — read all accessible source code (see `formats/reconnaissance.md`). Create `{OUTPUT_DIR}/experiments.md` with header row (see format below).
 2. **Think** — write theory + next step to `attack-chain.md`
 3. **Test** — 1-2 executors per batch, integrate before next
 4. **Validate** — validators per-finding (see `skills/coordination/reference/VALIDATION.md`)
