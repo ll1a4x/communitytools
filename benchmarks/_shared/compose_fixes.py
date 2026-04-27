@@ -74,8 +74,14 @@ def fix_buster_apt_sources(config_path: Path) -> None:
 
     Many benchmarks use images based on EOL Debian releases (Debian 9 Stretch:
     php:7.1-apache, python:3.6-slim; Debian 10 Buster: python:2.7.18-slim,
-    python:3.8-slim-buster, httpd:2.4.49/50). Those repos moved from
-    deb.debian.org to archive.debian.org, so `apt-get update` returns 404.
+    python:3.8-slim-buster, httpd:2.4.49/50). Two problems to fix:
+      1. Repos moved from deb.debian.org to archive.debian.org (404 otherwise).
+      2. archive.debian.org InRelease files fail GPG verification in the
+         original base image keyring ("not signed" / "invalid signature"), so
+         `apt-get update` exits 100 even after the URL rewrite. Mark the
+         archived repos [trusted=yes] and disable Valid-Until checks to get
+         apt through. Safe for CTF builds — these are ephemeral containers,
+         never pushed to production.
 
     Injects conditional seds immediately after every FROM line. The seds only
     fire if `stretch` or `buster` appears in sources.list, so Bullseye/Bookworm
@@ -87,17 +93,28 @@ def fix_buster_apt_sources(config_path: Path) -> None:
         "if grep -q $codename /etc/apt/sources.list; then "
         "sed -i \"/$codename/s|deb.debian.org|archive.debian.org|g\" /etc/apt/sources.list && "
         "sed -i \"/$codename/s|security.debian.org[^ ]*|archive.debian.org/debian-security|g\" /etc/apt/sources.list && "
-        "sed -i \"/${codename}-updates/d\" /etc/apt/sources.list; "
+        "sed -i \"/${codename}-updates/d\" /etc/apt/sources.list && "
+        "sed -i \"/$codename/s|^deb http|deb [trusted=yes] http|g\" /etc/apt/sources.list && "
+        "echo 'Acquire::Check-Valid-Until \\\"false\\\";' > /etc/apt/apt.conf.d/99no-check-valid-until && "
+        "echo 'Acquire::AllowInsecureRepositories \\\"true\\\";' > /etc/apt/apt.conf.d/99allow-insecure && "
+        "echo 'Acquire::AllowDowngradeToInsecureRepositories \\\"true\\\";' >> /etc/apt/apt.conf.d/99allow-insecure; "
         "fi; done; fi"
     )
+    marker = "99allow-insecure"
     try:
         for dockerfile in config_path.rglob("Dockerfile"):
             content = dockerfile.read_text()
             if "apt-get" not in content:
                 continue
-            if "archive.debian.org" in content:
+            if marker in content:
                 continue
-            lines = content.split("\n")
+            lines = [
+                line for line in content.split("\n")
+                if not (
+                    line.strip().startswith("RUN if [ -f /etc/apt/sources.list ]")
+                    and "archive.debian.org" in line
+                )
+            ]
             new_lines = []
             for line in lines:
                 new_lines.append(line)

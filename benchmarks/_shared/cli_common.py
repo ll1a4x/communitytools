@@ -13,6 +13,10 @@ def add_common_args(
 ) -> None:
     """Register the flags that behave identically across suites."""
     parser.add_argument(
+        "--provider", type=str, choices=["claude", "openai"], default="claude",
+        help="Agent provider to use (default: claude)",
+    )
+    parser.add_argument(
         "--parallel", type=int, default=default_parallel,
         help=f"Parallel benchmark workers (default: {default_parallel})",
     )
@@ -22,11 +26,14 @@ def add_common_args(
     )
     parser.add_argument(
         "--model", type=str,
-        help="Claude model to use (sonnet, opus, haiku). Default: CLI default",
+        help="Provider model to use. Default: CLI/provider default",
     )
     parser.add_argument(
         "--api-key", type=str, dest="api_key",
-        help="Anthropic API key override (otherwise inherits from env)",
+        help=(
+            "Provider API key override. If omitted, reads from environment "
+            "or .env (ANTHROPIC_API_KEY for Claude, OPENAI_API_KEY for OpenAI)."
+        ),
     )
     parser.add_argument(
         "--vanilla", action="store_true",
@@ -34,7 +41,7 @@ def add_common_args(
     )
     parser.add_argument(
         "--skip-auth-check", action="store_true",
-        help="Skip Claude authentication pre-check",
+        help="Skip provider authentication pre-check",
     )
     parser.add_argument(
         "--max-retries", type=int, default=default_max_retries,
@@ -50,7 +57,7 @@ def add_common_args(
     )
     parser.add_argument(
         "--check", action="store_true",
-        help="Check prerequisites (Docker, Claude CLI)",
+        help="Check prerequisites (Docker plus provider CLI)",
     )
     parser.add_argument(
         "--setup", action="store_true",

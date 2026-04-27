@@ -25,6 +25,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal, Optional
 
+from .agent_errors import classify_agent_error, extract_error_lines
+from .env_loader import resolve_anthropic_key
+
 
 @dataclass
 class AgentRunResult:
@@ -36,6 +39,7 @@ class AgentRunResult:
     duration_seconds: float
     status: str                 # "success" | "failed" | "timeout" | "error"
     error: Optional[str] = None
+    fatal: bool = False         # True → caller should abort the remaining run
 
 
 def run_claude(
@@ -91,8 +95,9 @@ def run_claude(
     cmd.extend(["-p", prompt])
 
     env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
-    if api_key:
-        env["ANTHROPIC_API_KEY"] = api_key
+    resolved_key = resolve_anthropic_key(api_key)
+    if resolved_key:
+        env["ANTHROPIC_API_KEY"] = resolved_key
 
     start = time.time()
     try:
@@ -139,10 +144,24 @@ def run_claude(
         shutil.rmtree(vanilla_tmpdir, ignore_errors=True)
 
     status = "success" if result.returncode == 0 else "failed"
-    if "Invalid API key" in stdout or "Please run /login" in stdout:
-        status = "error"
+    error: Optional[str] = None
+    fatal = False
+    if result.returncode != 0:
+        classification = classify_agent_error(stdout, stderr, result.returncode)
+        if classification:
+            status = "error"
+            fatal = classification.is_fatal
+            error = f"[{classification.kind}] {classification.message}"
+        else:
+            clean = extract_error_lines(stderr) or extract_error_lines(stdout)
+            error = f"rc={result.returncode} duration={duration:.1f}s" + (
+                f" | {clean}" if clean else ""
+            )
+        print(f"  {tag}Agent exited rc={result.returncode} after {duration:.1f}s")
+        print(f"  {tag}{error}")
+        print(f"  {tag}Full logs: {output_dir}/claude_output.txt, claude_stderr.txt")
 
     return AgentRunResult(
         stdout=stdout, stderr=stderr, returncode=result.returncode,
-        duration_seconds=duration, status=status,
+        duration_seconds=duration, status=status, error=error, fatal=fatal,
     )
